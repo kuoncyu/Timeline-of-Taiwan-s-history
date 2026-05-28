@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>台灣歷史時間軸 - 四角爭霸</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@600;900&display=swap');
+
+
+        :root {
+            --table-green: radial-gradient(circle, #064e3b 0%, #022c22 80%, #02140f 100%);
+            --wood-border: linear-gradient(135deg, #78350f 0%, #451a03 50%, #1c1917 100%);
+        }
+
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: #090d16;
+            overscroll-behavior: none;
+            overflow: hidden;
+            color: #f8fafc;
+        }
+
+
+        .serif-font { font-family: 'Noto Serif TC', serif; }
+
+
+        /* 麻將桌底色與木質感邊框 */
+        .mahjong-table {
+            background: var(--table-green);
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
+            position: relative;
+        }
+
+
+        .table-border {
+            border: 10px solid #292524;
+            border-image: var(--wood-border) 10;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+        }
+
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        }
+
+
+        /* 迷你卡牌與緊湊堆疊 */
+        .mini-card-container {
+            transition: all 0.2s ease-out;
+            margin-left: -12px; /* 縮小重疊距離適應並列 */
+        }
+        .mini-card-container:first-child { margin-left: 0; }
+        .mini-card-container:hover {
+            transform: translateY(-8px);
+            z-index: 30;
+        }
+        
+        .mini-card {
+            transition: all 0.3s ease;
+            box-shadow: -4px 0 10px rgba(0,0,0,0.4);
+        }
+        .mini-card:hover {
+            border-color: #fbbf24;
+            box-shadow: -2px 10px 20px rgba(245, 158, 11, 0.5);
+        }
+
+
+        /* 中間公海時間軸 */
+        .timeline-scroll {
+            scroll-behavior: smooth;
+        }
+        .timeline-scroll::-webkit-scrollbar { height: 8px; }
+        .timeline-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 4px; }
+        .timeline-scroll::-webkit-scrollbar-thumb { background: rgba(245, 158, 11, 0.6); border-radius: 4px; }
+
+
+        @keyframes pulse-gold {
+            0%, 100% { transform: scale(1); opacity: 0.7; box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); }
+            50% { transform: scale(1.05); opacity: 1; box-shadow: 0 0 25px rgba(245, 158, 11, 0.9); }
+        }
+        .gap-pulse {
+            animation: pulse-gold 1.5s infinite;
+            background: rgba(245, 158, 11, 0.25) !important;
+            border-color: #f59e0b !important;
+        }
+
+
+        @keyframes scaleUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .animate-scale-up { animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        /* ===== 大廳樣式 ===== */
+        .lobby-bg {
+            background: radial-gradient(ellipse at 20% 20%, #1a3a2a 0%, #0a1f15 40%, #050d0a 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .lobby-lantern {
+            position: absolute;
+            width: 28px; height: 40px;
+            border-radius: 50% 50% 40% 40%;
+            animation: swing 3s ease-in-out infinite;
+            transform-origin: top center;
+            box-shadow: 0 0 20px currentColor;
+        }
+        @keyframes swing { 0%,100%{transform:rotate(-8deg)} 50%{transform:rotate(8deg)} }
+        @keyframes floatUp { 0%{transform:translateY(0) rotate(0);opacity:0.7} 100%{transform:translateY(-80px) rotate(15deg);opacity:0} }
+        .particle {
+            position: absolute;
+            width: 4px; height: 4px;
+            border-radius: 50%;
+            animation: floatUp 4s ease-in infinite;
+        }
+        @keyframes shimmer { 0%,100%{opacity:0.4} 50%{opacity:1} }
+        .lobby-deco { animation: shimmer 2.5s ease-in-out infinite; }
+        @keyframes fadeInDown { from{transform:translateY(-30px);opacity:0} to{transform:translateY(0);opacity:1} }
+        @keyframes fadeInUp { from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
+        .fade-in-down { animation: fadeInDown 0.8s ease forwards; }
+        .fade-in-up { animation: fadeInUp 0.8s ease forwards; }
+        .lobby-btn {
+            position: relative; overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .lobby-btn::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%);
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .lobby-btn:hover::before { opacity: 1; }
+        .lobby-btn:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 12px 40px rgba(0,0,0,0.5); }
+        /* 無限挑戰特別按鈕 */
+        .btn-infinite {
+            background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #2563eb 100%);
+            border: 1px solid rgba(139,92,246,0.5);
+        }
+        /* 排行榜 */
+        .leaderboard-row:nth-child(1) .lb-rank { color: #ffd700; text-shadow: 0 0 10px #ffd700; }
+        .leaderboard-row:nth-child(2) .lb-rank { color: #c0c0c0; }
+        .leaderboard-row:nth-child(3) .lb-rank { color: #cd7f32; }
+        /* 英文小鍵盤 */
+        .kb-key {
+            background: linear-gradient(180deg, #374151 0%, #1f2937 100%);
+            border: 1px solid #4b5563;
+            border-bottom: 3px solid #111827;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            color: #f9fafb;
+            transition: all 0.08s;
+            user-select: none;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .kb-key:active, .kb-key.pressed {
+            border-bottom-width: 1px;
+            transform: translateY(2px);
+            background: linear-gradient(180deg, #4b5563 0%, #374151 100%);
+        }
+        .kb-key.space-key { flex: 1; }
+        .kb-key.del-key { background: linear-gradient(180deg, #7f1d1d 0%, #450a0a 100%); border-color: #991b1b; }
+        /* 遊戲結束震動 */
+        @keyframes shake { 0%,100%{transform:translateX(0)} 10%,50%,90%{transform:translateX(-8px)} 30%,70%{transform:translateX(8px)} }
+        .shake { animation: shake 0.5s ease; }
+        /* 大廳飄落金葉 */
+        @keyframes leafFall {
+            0%{transform:translateY(-20px) rotate(0deg) translateX(0);opacity:0.8}
+            50%{transform:translateY(40vh) rotate(180deg) translateX(30px);opacity:0.6}
+            100%{transform:translateY(90vh) rotate(360deg) translateX(-20px);opacity:0}
+        }
+        .leaf { animation: leafFall linear infinite; position:absolute; font-size:16px; pointer-events:none; }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col select-none text-slate-100">
+
+
+    <!-- 全螢幕輔助 -->
+    <div id="fs-helper" class="fixed inset-0 bg-black/90 z-[110] flex flex-col items-center justify-center p-6 text-center transition-all duration-500">
+        <div class="glass-panel p-8 sm:p-12 rounded-3xl max-w-md border border-amber-500/30">
+            <i class="fas fa-expand text-6xl text-amber-500 mb-6 animate-pulse"></i>
+            <h2 class="text-3xl font-black mb-4 serif-font text-yellow-400">進入歷史牌局</h2>
+            <p class="text-slate-300 mb-8">為確保「四角對戰佈局」完美呈現，請點擊下方開啟全螢幕模式。</p>
+            <button onclick="requestStartGame()" class="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold py-4 px-10 rounded-xl text-lg shadow-lg">
+                開啟並載入遊戲
+            </button>
+        </div>
+    </div>
+
+
+    <!-- 頂部資訊列 (極簡) -->
+    <div id="game-header" class="hidden bg-black/80 border-b border-emerald-900/50 text-white px-4 py-2 shadow-lg flex justify-between items-center z-[60] absolute top-0 w-full h-[40px]">
+        <div class="flex items-center gap-3">
+            <span class="text-amber-400 font-bold text-sm tracking-widest" id="display-round">第 1 回合</span>
+            <button onclick="handleHomeClick()" class="w-7 h-7 flex items-center justify-center text-[12px] text-slate-400 hover:text-white border border-slate-600 hover:border-amber-500 rounded bg-slate-800 transition-all shadow-inner group" title="返回主畫面">
+                <i class="fas fa-home group-hover:scale-110"></i>
+            </button>
+        </div>
+        <div class="flex items-center gap-4 text-xs font-mono">
+            <div class="text-amber-300"><i class="fas fa-clock mr-1"></i><span id="game-timer">00:00</span></div>
+            <div class="text-slate-300 border-l border-slate-600 pl-4"><i class="fas fa-layer-group mr-1"></i>剩餘: <span id="game-deck-count" class="font-bold">0</span></div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="audioManager.toggle()" id="btn-audio" class="text-amber-500 hover:text-amber-300 px-2"><i class="fas fa-volume-mute"></i></button>
+            <button onclick="toggleFullscreen()" class="text-slate-400 hover:text-white px-2"><i class="fas fa-expand"></i></button>
+        </div>
+    </div>
+
+
+    <!-- Toast 提示 -->
+    <div id="toast" class="fixed top-12 left-1/2 transform -translate-x-1/2 z-[100] px-6 py-2 rounded-full text-white font-bold text-sm opacity-0 transition-all duration-300 pointer-events-none shadow-2xl glass-panel"></div>
+
+
+    <!-- 遊戲容器 -->
+    <div id="app" class="flex-1 w-full h-full relative"></div>
+
+
+    <!-- 自定義確認對話框 (抽離至全域) -->
+    <div id="confirm-modal" class="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-6">
+        <div class="glass-panel p-6 sm:p-8 rounded-2xl max-w-sm w-full border border-amber-500/30 shadow-2xl animate-scale-up text-center">
+            <div class="w-16 h-16 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-amber-500/20">
+                <i class="fas fa-door-open text-3xl text-amber-500"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2 serif-font">結束當前牌局？</h3>
+            <p class="text-slate-400 text-sm mb-6 leading-relaxed">目前的遊戲進度將會遺失，確定要返回主畫面嗎？</p>
+            <div class="flex gap-3">
+                <button onclick="closeConfirmModal()" class="flex-1 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm transition-colors">
+                    繼續比賽
+                </button>
+                <button onclick="confirmQuitGame()" class="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-red-600 to-orange-700 hover:from-red-500 hover:to-orange-600 text-white font-bold text-sm shadow-lg transition-all">
+                    確定退出
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // --- Web Audio (Enhanced) ---
+        const audioManager = {
+            ctx: null, isMuted: true,
+            bgmSequence: null, nextNoteTime: 0, currentNoteIndex: 0,
+            lobbyBgmSeq: null, lobbyNoteIdx: 0, lobbyNextTime: 0,
+            bgmMode: 'lobby', // 'lobby' | 'game'
+
+            // 遊戲中緊張 BGM（快速小調）
+            gameScale: [220, 246.94, 261.63, 293.66, 329.63, 349.23, 392.00, 440],
+            gamePattern: [0,2,4,2,3,5,4,2, 1,3,5,3,2,4,3,1, 0,2,3,4,5,4,3,2, 1,2,4,5,7,5,4,2],
+            gameTempo: 160,
+
+            // 大廳溫馨 BGM（慢速和弦琶音）
+            lobbyScale: [261.63, 329.63, 392.00, 523.25, 659.25],
+            lobbyPattern: [0,2,1,3,2,4,-1, 0,1,2,1,0,-1,-1, 2,3,4,3,2,1,-1, 0,2,4,2,0,-1,-1],
+            lobbyTempo: 60,
+
+            init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+
+            toggle() {
+                this.init(); if (this.ctx.state === 'suspended') this.ctx.resume();
+                this.isMuted = !this.isMuted;
+                const btn = document.querySelector('#btn-audio i');
+                if(btn) btn.className = this.isMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+                if (this.isMuted) { this.stopBGM(); this.stopLobbyBGM(); }
+                else {
+                    this.playSFX('select');
+                    if (this.bgmMode === 'lobby') this.startLobbyBGM();
+                    else this.startBGM();
+                }
+            },
+
+            createNote(freq, time, vol=0.08, type='sine', decay=1.2) {
+                if(this.isMuted || !this.ctx) return;
+                const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+                osc.type = type; osc.frequency.setValueAtTime(freq, time);
+                gain.gain.setValueAtTime(0, time);
+                gain.gain.linearRampToValueAtTime(vol, time + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, time + decay);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(time); osc.stop(time + decay + 0.1);
+            },
+
+            playSFX(event) {
+                if(this.isMuted || !this.ctx) return;
+                const t = this.ctx.currentTime;
+                if(event==='click') this.createNote(392, t, 0.1, 'sine', 0.15);
+                else if(event==='select') this.createNote(523.25, t, 0.12, 'sine', 0.2);
+                else if(event==='card') { // 抽牌音效
+                    this.createNote(880, t, 0.06, 'sine', 0.08);
+                    this.createNote(1046.5, t+0.05, 0.05, 'sine', 0.1);
+                }
+                else if(event==='correct') {
+                    [523.25,659.25,783.99,1046.5].forEach((f,i) => this.createNote(f, t+i*0.09, 0.15, 'sine', 0.4));
+                }
+                else if(event==='wrong') {
+                    // 低沉蜂鳴
+                    const osc=this.ctx.createOscillator(), g=this.ctx.createGain();
+                    osc.type='sawtooth'; osc.frequency.setValueAtTime(180,t); osc.frequency.exponentialRampToValueAtTime(60,t+0.4);
+                    g.gain.setValueAtTime(0.18,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.5);
+                    osc.connect(g); g.connect(this.ctx.destination); osc.start(t); osc.stop(t+0.5);
+                    // 加上裂碎聲
+                    const buf=this.ctx.createBuffer(1,this.ctx.sampleRate*0.3,this.ctx.sampleRate);
+                    const d=buf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*0.5;
+                    const src=this.ctx.createBufferSource(), g2=this.ctx.createGain();
+                    src.buffer=buf; g2.gain.setValueAtTime(0.08,t); g2.gain.exponentialRampToValueAtTime(0.001,t+0.3);
+                    src.connect(g2); g2.connect(this.ctx.destination); src.start(t);
+                }
+                else if(event==='gameover') {
+                    // 遊戲結束：下降音階
+                    [523.25,466.16,415.30,369.99,329.63,293.66,261.63].forEach((f,i)=>
+                        this.createNote(f, t+i*0.12, 0.15, 'triangle', 0.3));
+                }
+                else if(event==='win') {
+                    [261.63,329.63,392.00,523.25,659.25,783.99,1046.50,1318.51].forEach((f,i)=>
+                        this.createNote(f, t+i*0.07, 0.18, 'sine', 0.5));
+                }
+                else if(event==='lobby_enter') {
+                    [523.25,659.25,783.99].forEach((f,i) => this.createNote(f, t+i*0.1, 0.1, 'sine', 0.6));
+                }
+            },
+
+            // 大廳 BGM
+            scheduleLobbyNote() {
+                while(this.lobbyNextTime < this.ctx.currentTime + 0.1) {
+                    let n = this.lobbyPattern[this.lobbyNoteIdx];
+                    if(n !== -1) {
+                        const f = this.lobbyScale[n];
+                        this.createNote(f, this.lobbyNextTime, 0.04, 'sine', 1.5);
+                        // 加和聲
+                        if(n+2 < this.lobbyScale.length) this.createNote(this.lobbyScale[n+2]*0.5, this.lobbyNextTime, 0.02, 'sine', 2.0);
+                    }
+                    this.lobbyNextTime += 60.0 / this.lobbyTempo;
+                    this.lobbyNoteIdx = (this.lobbyNoteIdx+1) % this.lobbyPattern.length;
+                }
+                this.lobbyBgmSeq = requestAnimationFrame(() => this.scheduleLobbyNote());
+            },
+            startLobbyBGM() {
+                if(this.isMuted || !this.ctx) return;
+                this.stopLobbyBGM(); this.stopBGM();
+                this.lobbyNextTime = this.ctx.currentTime + 0.1;
+                this.lobbyNoteIdx = 0; this.bgmMode='lobby';
+                this.scheduleLobbyNote();
+            },
+            stopLobbyBGM() { if(this.lobbyBgmSeq) { cancelAnimationFrame(this.lobbyBgmSeq); this.lobbyBgmSeq=null; } },
+
+            // 遊戲 BGM（緊張）
+            scheduleNote() {
+                while(this.nextNoteTime < this.ctx.currentTime + 0.1) {
+                    let n = this.gamePattern[this.currentNoteIndex];
+                    if(n !== -1) {
+                        const f = this.gameScale[n];
+                        this.createNote(f, this.nextNoteTime, 0.035, 'square', 0.18);
+                        // 低頻鼓點
+                        if(this.currentNoteIndex % 8 === 0) {
+                            const d=this.ctx.createOscillator(), dg=this.ctx.createGain();
+                            d.type='sine'; d.frequency.setValueAtTime(80,this.nextNoteTime); d.frequency.exponentialRampToValueAtTime(40,this.nextNoteTime+0.1);
+                            dg.gain.setValueAtTime(0.12,this.nextNoteTime); dg.gain.exponentialRampToValueAtTime(0.001,this.nextNoteTime+0.15);
+                            d.connect(dg); dg.connect(this.ctx.destination); d.start(this.nextNoteTime); d.stop(this.nextNoteTime+0.2);
+                        }
+                        // 拍板 hi-hat
+                        if(this.currentNoteIndex % 4 === 2) {
+                            const buf=this.ctx.createBuffer(1,Math.floor(this.ctx.sampleRate*0.05),this.ctx.sampleRate);
+                            const dd=buf.getChannelData(0); for(let i=0;i<dd.length;i++) dd[i]=(Math.random()*2-1);
+                            const s=this.ctx.createBufferSource(), hg=this.ctx.createGain(), hf=this.ctx.createBiquadFilter();
+                            s.buffer=buf; hf.type='highpass'; hf.frequency.value=8000;
+                            hg.gain.setValueAtTime(0.05,this.nextNoteTime); hg.gain.exponentialRampToValueAtTime(0.001,this.nextNoteTime+0.05);
+                            s.connect(hf); hf.connect(hg); hg.connect(this.ctx.destination); s.start(this.nextNoteTime);
+                        }
+                    }
+                    this.nextNoteTime += 60.0 / this.gameTempo;
+                    this.currentNoteIndex = (this.currentNoteIndex+1) % this.gamePattern.length;
+                }
+                this.bgmSequence = requestAnimationFrame(() => this.scheduleNote());
+            },
+            startBGM() {
+                if(this.isMuted || !this.ctx) return;
+                this.stopLobbyBGM(); this.stopBGM();
+                this.nextNoteTime = this.ctx.currentTime + 0.1;
+                this.currentNoteIndex = 0; this.bgmMode='game';
+                this.scheduleNote();
+            },
+            stopBGM() { if(this.bgmSequence) { cancelAnimationFrame(this.bgmSequence); this.bgmSequence=null; } },
+
+            switchToGameBGM() { this.stopLobbyBGM(); if(!this.isMuted && this.ctx) { this.ctx.resume().then(()=>this.startBGM()); } },
+            switchToLobbyBGM() { this.stopBGM(); if(!this.isMuted && this.ctx) { this.ctx.resume().then(()=>this.startLobbyBGM()); } }
+        };
+
+
+        // --- 全螢幕與狀態 ---
+        async function requestStartGame() {
+            try {
+                if (document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen();
+            } catch (err) { console.warn("Fullscreen API blocked, continuing in windowed mode."); }
+            document.getElementById('fs-helper').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('fs-helper').style.display = 'none';
+                document.getElementById('game-header').classList.remove('hidden');
+                audioManager.init();
+                // 自動播放大廳 BGM
+                if(audioManager.ctx) {
+                    audioManager.isMuted = false;
+                    const btn = document.querySelector('#btn-audio i');
+                    if(btn) btn.className = 'fas fa-volume-up';
+                    audioManager.startLobbyBGM();
+                    audioManager.playSFX('lobby_enter');
+                }
+            }, 300);
+        }
+
+
+        async function toggleFullscreen() {
+            audioManager.playSFX('click');
+            try {
+                if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
+                else await document.exitFullscreen();
+            } catch (err) {}
+        }
+
+
+        const wikiImageCache = {}; const fetchingWiki = new Set();
+        const noPicSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='200' viewBox='0 0 150 200'><rect width='150' height='200' fill='%231e293b'/><text x='75' y='110' font-family='sans-serif' font-size='12' text-anchor='middle' fill='%2364748b'>史料無影像</text></svg>";
+        function renderWikiImage(wikiTitle) {
+            if (!wikiTitle) return noPicSvg;
+            if (wikiImageCache[wikiTitle]) return wikiImageCache[wikiTitle];
+            if (!fetchingWiki.has(wikiTitle)) {
+                fetchingWiki.add(wikiTitle);
+                fetch(`https://zh.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(wikiTitle)}&prop=pageimages&format=json&pithumbsize=300&origin=*`)
+                    .then(res => res.json()).then(data => {
+                        const pid = Object.keys(data.query.pages)[0];
+                        wikiImageCache[wikiTitle] = data.query.pages[pid]?.thumbnail?.source || noPicSvg;
+                        document.querySelectorAll(`img[data-wiki="${wikiTitle}"]`).forEach(img => { img.src = wikiImageCache[wikiTitle]; img.classList.remove('opacity-0'); });
+                    }).catch(() => { wikiImageCache[wikiTitle] = noPicSvg; });
+            }
+            return "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='200' viewBox='0 0 150 200'><rect width='150' height='200' fill='%230f172a'/></svg>";
+        }
+
+
+        // --- 113 題完整歷史題庫 ---
+        const ALL_PERIODS = [
+            { id: 'prehistoric', name: '史前時代' }, { id: 'dutch', name: '荷西時期' }, 
+            { id: 'ming', name: '明鄭時期' }, { id: 'qing', name: '清治時期' }, 
+            { id: 'japanese', name: '日治時期' }, { id: 'modern', name: '戰後與現代' }
+        ];
+
+
+        const ALL_CARDS = [
+            { id: 1, title: '長濱文化', year: -50000, period: 'prehistoric', level: 1, wiki: '長濱文化', desc: '台灣已知最古老的舊石器時代人類遺址，採集漁獵為主。' },
+            { id: 2, title: '大坌坑文化', year: -5000, period: 'prehistoric', level: 1, wiki: '大坌坑文化', desc: '新石器時代早期，特徵為粗繩紋陶，已有初級農業。' },
+            { id: 3, title: '圓山文化', year: -3000, period: 'prehistoric', level: 2, wiki: '圓山遺址', desc: '新石器時代中期，以貝塚與有段石錛聞名。' },
+            { id: 4, title: '卑南文化', year: -1500, period: 'prehistoric', level: 1, wiki: '卑南遺址', desc: '新石器時代晚期，以大量石板棺與精美玉器聞名。' },
+            { id: 5, title: '十三行文化', year: 500, period: 'prehistoric', level: 1, wiki: '十三行遺址', desc: '鐵器時代代表，有煉鐵技術與瑪瑙珠。' },
+            { id: 6, title: '網形文化', year: -40000, period: 'prehistoric', level: 3, wiki: '網形遺址', desc: '發現於苗栗的舊石器時代晚期文化。' },
+            { id: 7, title: '蔦松文化', year: 500, period: 'prehistoric', level: 3, wiki: '蔦松文化', desc: '鐵器時代中南部代表，一般認為是西拉雅族的祖先。' },
+            { id: 8, title: '八仙洞遺址', year: -30000, period: 'prehistoric', level: 2, wiki: '八仙洞遺址', desc: '位於台東長濱鄉的海蝕洞群，出土豐富舊石器。' },
+            { id: 9, title: '營埔文化', year: -1500, period: 'prehistoric', level: 3, wiki: '營埔遺址', desc: '中部地區新石器時代晚期代表，特徵為黑陶。' },
+            { id: 10, title: '沈有容諭退紅毛番', year: 1604, period: 'dutch', level: 3, wiki: '沈有容諭退紅毛番韋麻郎等', desc: '明朝將領沈有容在澎湖勸退荷蘭將領韋麻郎。' },
+            { id: 11, title: '荷印公司建熱蘭遮城', year: 1624, period: 'dutch', level: 1, wiki: '熱蘭遮城', desc: '荷蘭人於大員(今安平)建立據點，開啟統治。' },
+            { id: 12, title: '西班牙建聖薩爾瓦多城', year: 1626, period: 'dutch', level: 2, wiki: '聖薩爾瓦多城', desc: '西班牙於和平島建城以對抗荷蘭貿易。' },
+            { id: 13, title: '濱田彌兵衛事件', year: 1628, period: 'dutch', level: 3, wiki: '濱田彌兵衛事件', desc: '日本朱印船船長與荷蘭公司因貿易利益發生的衝突。' },
+            { id: 14, title: '麻豆溪事件', year: 1629, period: 'dutch', level: 3, wiki: '麻豆溪事件', desc: '麻豆社原住民襲殺荷蘭士兵的武裝衝突。' },
+            { id: 15, title: '新港文書', year: 1636, period: 'dutch', level: 2, wiki: '新港文書', desc: '傳教士用羅馬拼音書寫西拉雅語，教導原住民識字。' },
+            { id: 16, title: '大肚王國全盛期', year: 1640, period: 'dutch', level: 3, wiki: '大肚王國', desc: '台灣中部原住民跨部落的聯盟政權，曾與荷蘭簽訂和約。' },
+            { id: 17, title: '郭懷一事件', year: 1652, period: 'dutch', level: 1, wiki: '郭懷一事件', desc: '漢人農民不滿荷蘭高壓統治與重稅而發起的武裝抗暴。' },
+            { id: 18, title: '普羅民遮城建立', year: 1653, period: 'dutch', level: 2, wiki: '普羅民遮城', desc: '因應郭懷一事件，荷蘭建立赤崁樓加強防禦。' },
+            { id: 19, title: '鄭成功驅逐荷蘭人', year: 1662, period: 'ming', level: 1, wiki: '鄭成功攻台之役', desc: '結束荷蘭統治，開啟漢人政權在台時期。' },
+            { id: 20, title: '實施屯田制', year: 1662, period: 'ming', level: 2, wiki: '臺灣明鄭時期', desc: '寓兵於農，分派軍隊至各地開墾。' },
+            { id: 21, title: '東寧之變', year: 1662, period: 'ming', level: 3, wiki: '東寧之變', desc: '鄭成功死後，鄭經在權力鬥爭中勝出。' },
+            { id: 22, title: '全臺首學落成', year: 1665, period: 'ming', level: 1, wiki: '臺南孔子廟', desc: '陳永華倡議建立台南孔廟，推動儒學。' },
+            { id: 23, title: '三藩之亂(鄭經西征)', year: 1674, period: 'ming', level: 3, wiki: '三藩之亂', desc: '鄭經響應耿精忠起事，跨海出兵福建。' },
+            { id: 24, title: '施琅攻台(澎湖海戰)', year: 1683, period: 'ming', level: 1, wiki: '澎湖海戰', desc: '擊敗鄭軍，明鄭政權滅亡。' },
+            { id: 25, title: '台灣納入清朝版圖', year: 1684, period: 'qing', level: 1, wiki: '臺灣清治時期', desc: '設台灣府，隸屬福建省，頒布渡台禁令。' },
+            { id: 26, title: '康熙台灣輿圖', year: 1704, period: 'qing', level: 3, wiki: '康熙臺灣輿圖', desc: '清代最早繪製的單幅台灣全圖。' },
+            { id: 27, title: '朱一貴事件', year: 1721, period: 'qing', level: 1, wiki: '朱一貴事件', desc: '清代台灣第一場大型民變。' },
+            { id: 28, title: '藍鼎元撰《東征集》', year: 1722, period: 'qing', level: 3, wiki: '藍鼎元', desc: '記載平定朱一貴事件及治台方略的重要文獻。' },
+            { id: 29, title: '大甲西社抗清', year: 1731, period: 'qing', level: 3, wiki: '大甲西社抗清事件', desc: '中部平埔族不滿勞役過重爆發的抗清行動。' },
+            { id: 30, title: '瑠公圳開工', year: 1740, period: 'qing', level: 2, wiki: '瑠公圳', desc: '郭錫瑠為灌溉台北盆地開鑿的水利工程。' },
+            { id: 31, title: '林爽文事件', year: 1786, period: 'qing', level: 1, wiki: '林爽文事件', desc: '天地會發起，清代規模最大的民變。' },
+            { id: 32, title: '吳沙入墾蘭陽平原', year: 1796, period: 'qing', level: 2, wiki: '吳沙', desc: '帶領移民大規模進入宜蘭開墾。' },
+            { id: 33, title: '海盜蔡牽亂台', year: 1805, period: 'qing', level: 3, wiki: '蔡牽', desc: '知名海盜蔡牽襲擊台灣沿海並自稱鎮海威武王。' },
+            { id: 34, title: '噶瑪蘭廳設立', year: 1812, period: 'qing', level: 2, wiki: '噶瑪蘭廳', desc: '將蘭陽平原正式納入清朝版圖。' },
+            { id: 35, title: '曹公圳開鑿', year: 1837, period: 'qing', level: 3, wiki: '曹公圳', desc: '高屏地區重要水利工程。' },
+            { id: 36, title: '台灣開港通商', year: 1860, period: 'qing', level: 1, wiki: '天津條約', desc: '開放淡水、安平、打狗、雞籠為通商口岸。' },
+            { id: 37, title: '戴潮春事件', year: 1862, period: 'qing', level: 2, wiki: '戴潮春事件', desc: '清治時期歷時最久的民變事件。' },
+            { id: 38, title: '馬雅各來台', year: 1865, period: 'qing', level: 2, wiki: '馬雅各', desc: '英國長老教會傳教士，在南部醫療傳教。' },
+            { id: 39, title: '羅發號事件', year: 1867, period: 'qing', level: 2, wiki: '羅發號事件', desc: '美國商船遇難後船員遭原住民殺害，促成南岬之盟。' },
+            { id: 40, title: '大南澳事件', year: 1868, period: 'qing', level: 3, wiki: '大南澳事件', desc: '英德兩國商人試圖在宜蘭大南澳建立據點的事件。' },
+            { id: 41, title: '牡丹社事件', year: 1874, period: 'qing', level: 1, wiki: '牡丹社事件', desc: '琉球船難者遭殺害，日本藉機出兵台灣。' },
+            { id: 42, title: '獅頭社事件', year: 1875, period: 'qing', level: 3, wiki: '獅頭社事件', desc: '開山撫番政策引發的軍民衝突。' },
+            { id: 43, title: '八通關古道開通', year: 1875, period: 'qing', level: 3, wiki: '八通關古道', desc: '吳光亮率軍開鑿的橫貫道路。' },
+            { id: 44, title: '馬偕設理學堂大書院', year: 1882, period: 'qing', level: 2, wiki: '理學堂大書院', desc: '又稱牛津學堂，培育西式教育人才。' },
+            { id: 45, title: '中法戰爭(西仔反)', year: 1884, period: 'qing', level: 2, wiki: '西仔反', desc: '法軍攻打基隆、淡水等地，劉銘傳防守成功。' },
+            { id: 46, title: '台灣建省', year: 1887, period: 'qing', level: 1, wiki: '福建臺灣省', desc: '劉銘傳為首任巡撫，推動現代化。' },
+            { id: 47, title: '劉銘傳鐵路通車', year: 1891, period: 'qing', level: 2, wiki: '臺灣鐵路 (清朝)', desc: '基隆至台北段完工，為台灣第一條鐵路。' },
+            { id: 48, title: '馬關條約與乙未戰爭', year: 1895, period: 'japanese', level: 1, wiki: '乙未戰爭', desc: '清朝割台，台人成立民主國抵抗。' },
+            { id: 49, title: '鐵國山抗日', year: 1896, period: 'japanese', level: 3, wiki: '鐵國山', desc: '雲林柯鐵虎等人的早期武裝抗日事件。' },
+            { id: 50, title: '專賣局設立', year: 1901, period: 'japanese', level: 2, wiki: '臺灣總督府專賣局', desc: '實施鴉片、樟腦等專賣。' },
+            { id: 51, title: '縱貫鐵路全線通車', year: 1908, period: 'japanese', level: 2, wiki: '縱貫線 (鐵路)', desc: '打通台灣南北交通。' },
+            { id: 52, title: '五年理蕃計畫', year: 1910, period: 'japanese', level: 3, wiki: '五年理蕃計畫', desc: '佐久間左馬太針對原住民的軍事行動。' },
+            { id: 53, title: '林杞埔事件', year: 1912, period: 'japanese', level: 3, wiki: '林杞埔事件', desc: '南投竹山一帶因竹林收歸國有引發的民怨事件。' },
+            { id: 54, title: '西來庵事件', year: 1915, period: 'japanese', level: 1, wiki: '西來庵事件', desc: '余清芳領導，規模最大的武裝抗日。' },
+            { id: 55, title: '台灣文化協會成立', year: 1921, period: 'japanese', level: 1, wiki: '臺灣文化協會', desc: '林獻堂等人倡導文化啟蒙。' },
+            { id: 56, title: '治警事件', year: 1923, period: 'japanese', level: 2, wiki: '治警事件', desc: '議會期成同盟會成員遭逮捕。' },
+            { id: 57, title: '台灣民眾黨成立', year: 1927, period: 'japanese', level: 2, wiki: '臺灣民眾黨 (1927年)', desc: '蔣渭水成立的合法政黨。' },
+            { id: 58, title: '台北帝大成立', year: 1928, period: 'japanese', level: 2, wiki: '臺北帝國大學', desc: '台灣第一所大學，今台大前身。' },
+            { id: 59, title: '台灣共產黨成立', year: 1928, period: 'japanese', level: 3, wiki: '台灣共產黨', desc: '於上海成立，主張台灣獨立。' },
+            { id: 60, title: '嘉南大圳完工', year: 1930, period: 'japanese', level: 1, wiki: '嘉南大圳', desc: '八田與一設計的重大水利工程。' },
+            { id: 61, title: '霧社事件', year: 1930, period: 'japanese', level: 1, wiki: '霧社事件', desc: '莫那魯道率賽德克族反抗。' },
+            { id: 62, title: '台灣地方自治聯盟', year: 1930, period: 'japanese', level: 3, wiki: '臺灣地方自治聯盟', desc: '林獻堂等人為爭取台灣人參政權成立。' },
+            { id: 63, title: '日月潭水力發電所', year: 1934, period: 'japanese', level: 3, wiki: '日月潭水力發電所', desc: '提供全台工業化所需電力。' },
+            { id: 64, title: '台灣博覽會', year: 1935, period: 'japanese', level: 2, wiki: '始政四十周年記念臺灣博覽會', desc: '展示統治40年的成果。' },
+            { id: 65, title: '皇民化運動', year: 1936, period: 'japanese', level: 1, wiki: '皇民化運動', desc: '推行日語、改姓名，強化認同。' },
+            { id: 66, title: '高砂義勇隊', year: 1942, period: 'japanese', level: 3, wiki: '高砂義勇隊', desc: '徵召台灣原住民赴南洋作戰。' },
+            { id: 67, title: '台北大空襲', year: 1945, period: 'japanese', level: 2, wiki: '臺北大空襲', desc: '美軍對日治台灣進行最大規模的轟炸。' },
+            { id: 68, title: '國民政府接收', year: 1945, period: 'modern', level: 1, wiki: '臺灣光復', desc: '二戰結束，中華民國接收台灣。' },
+            { id: 69, title: '二二八事件', year: 1947, period: 'modern', level: 1, wiki: '二二八事件', desc: '全島性警民衝突與軍事鎮壓。' },
+            { id: 70, title: '新台幣發行', year: 1949, period: 'modern', level: 2, wiki: '新臺幣', desc: '四萬換一塊，解決惡性通貨膨脹。' },
+            { id: 71, title: '台灣省戒嚴令', year: 1949, period: 'modern', level: 1, wiki: '臺灣省戒嚴令', desc: '開啟長達38年的白色恐怖。' },
+            { id: 72, title: '古寧頭戰役', year: 1949, period: 'modern', level: 2, wiki: '古寧頭戰役', desc: '確立兩岸分治局面。' },
+            { id: 73, title: '耕者有其田', year: 1953, period: 'modern', level: 2, wiki: '耕者有其田', desc: '強制徵收土地放領給佃農。' },
+            { id: 74, title: '中美共同防禦條約', year: 1954, period: 'modern', level: 2, wiki: '中美共同防禦條約', desc: '確立冷戰時期美國協防基礎。' },
+            { id: 75, title: '八二三砲戰', year: 1958, period: 'modern', level: 1, wiki: '金門砲戰', desc: '共軍對金門的密集砲擊。' },
+            { id: 76, title: '雷震事件', year: 1960, period: 'modern', level: 3, wiki: '雷震事件', desc: '《自由中國》成員籌組新黨遭捕。' },
+            { id: 77, title: '彭明敏自救宣言', year: 1964, period: 'modern', level: 3, wiki: '台灣自救運動宣言', desc: '呼籲制訂新憲法。' },
+            { id: 78, title: '加工出口區設立', year: 1966, period: 'modern', level: 2, wiki: '加工出口區', desc: '於高雄成立，帶動出口導向經濟。' },
+            { id: 79, title: '九年國民義務教育', year: 1968, period: 'modern', level: 2, wiki: '臺灣九年國民義務教育', desc: '延長國民教育，提升素質。' },
+            { id: 80, title: '退出聯合國', year: 1971, period: 'modern', level: 1, wiki: '聯合國大會第2758號決議', desc: '席位由中華人民共和國取代。' },
+            { id: 81, title: '保釣運動', year: 1971, period: 'modern', level: 3, wiki: '保釣運動', desc: '海外留學生發起的維護釣魚台主權運動。' },
+            { id: 82, title: '十大建設', year: 1974, period: 'modern', level: 1, wiki: '十大建設', desc: '奠定經濟起飛基礎的大型基建。' },
+            { id: 83, title: '中壢事件', year: 1977, period: 'modern', level: 3, wiki: '中壢事件', desc: '因選舉舞弊引發的群眾抗議事件。' },
+            { id: 84, title: '中美斷交', year: 1979, period: 'modern', level: 2, wiki: '中華民國與美國關係', desc: '美與中建交，通過台灣關係法。' },
+            { id: 85, title: '美麗島事件', year: 1979, period: 'modern', level: 1, wiki: '美麗島事件', desc: '高雄黨外大遊行遭鎮壓。' },
+            { id: 86, title: '林宅血案', year: 1980, period: 'modern', level: 3, wiki: '林宅血案', desc: '林義雄家屬遭殺害的懸案。' },
+            { id: 87, title: '陳文成事件', year: 1981, period: 'modern', level: 3, wiki: '陳文成事件', desc: '旅美學人離奇陳屍台大校園。' },
+            { id: 88, title: '新竹科學園區成立', year: 1980, period: 'modern', level: 2, wiki: '新竹科學園區', desc: '奠定台灣高科技產業基礎。' },
+            { id: 89, title: '民主進步黨成立', year: 1986, period: 'modern', level: 2, wiki: '民主進步黨', desc: '解嚴前成立的反對黨。' },
+            { id: 90, title: '解除戒嚴', year: 1987, period: 'modern', level: 1, wiki: '臺灣解嚴', desc: '開放黨禁、報禁與赴陸探親。' },
+            { id: 91, title: '520農民運動', year: 1988, period: 'modern', level: 3, wiki: '520農民運動', desc: '農民爭取權益引發的大規模街頭衝突。' },
+            { id: 92, title: '鄭南榕自焚', year: 1989, period: 'modern', level: 2, wiki: '鄭南榕', desc: '為爭取言論自由拒捕自焚。' },
+            { id: 93, title: '野百合學運', year: 1990, period: 'modern', level: 1, wiki: '野百合學運', desc: '學生靜坐提出解散國大等訴求。' },
+            { id: 94, title: '廢除動員戡亂', year: 1991, period: 'modern', level: 2, wiki: '動員戡亂時期臨時條款', desc: '回歸憲法常軌。' },
+            { id: 95, title: '刑法100條修正', year: 1992, period: 'modern', level: 3, wiki: '中華民國刑法第一百條', desc: '廢除和平思想叛亂罪。' },
+            { id: 96, title: '全民健保實施', year: 1995, period: 'modern', level: 1, wiki: '全民健康保險', desc: '大幅提升全民醫療保障的社會福利制度。' },
+            { id: 97, title: '首次總統直選', year: 1996, period: 'modern', level: 1, wiki: '1996年中華民國總統選舉', desc: '李登輝當選，期間爆發飛彈危機。' },
+            { id: 98, title: '精省', year: 1998, period: 'modern', level: 3, wiki: '臺灣省政府功能業務與組織調整', desc: '凍結台灣省級政府選舉，簡化行政層級。' },
+            { id: 99, title: '九二一大地震', year: 1999, period: 'modern', level: 1, wiki: '921大地震', desc: '規模7.3強震，造成嚴重傷亡。' },
+            { id: 100, title: '首次政黨輪替', year: 2000, period: 'modern', level: 1, wiki: '2000年中華民國總統選舉', desc: '陳水扁當選，結束國民黨執政。' },
+            { id: 101, title: 'SARS疫情', year: 2003, period: 'modern', level: 2, wiki: '嚴重急性呼吸系統綜合症疫情', desc: '和平醫院封院，衝擊公衛體系。' },
+            { id: 102, title: '首次全國公投', year: 2004, period: 'modern', level: 2, wiki: '2004年中華民國全國性公民投票', desc: '歷史上首次舉行的全國性公民投票。' },
+            { id: 103, title: '台北101落成', year: 2004, period: 'modern', level: 2, wiki: '台北101', desc: '當時世界最高建築。' },
+            { id: 104, title: '雪山隧道通車', year: 2006, period: 'modern', level: 2, wiki: '雪山隧道', desc: '大幅縮短台北至宜蘭的行車時間。' },
+            { id: 105, title: '紅衫軍倒扁', year: 2006, period: 'modern', level: 3, wiki: '百萬人民倒扁運動', desc: '要求陳水扁下台的群眾運動。' },
+            { id: 106, title: '台灣高鐵通車', year: 2007, period: 'modern', level: 1, wiki: '台灣高速鐵路', desc: '形成西部一日生活圈。' },
+            { id: 107, title: '莫拉克風災', year: 2009, period: 'modern', level: 2, wiki: '八八水災', desc: '中南部嚴重水患，小林村滅村。' },
+            { id: 108, title: '太陽花學運', year: 2014, period: 'modern', level: 1, wiki: '太陽花學運', desc: '反服貿學生佔領立法院。' },
+            { id: 109, title: '同性婚姻合法化', year: 2019, period: 'modern', level: 1, wiki: '臺灣同性婚姻', desc: '亞洲首個同婚合法國家。' },
+            { id: 110, title: 'COVID-19 防疫', year: 2020, period: 'modern', level: 2, wiki: '2019冠狀病毒病臺灣疫情', desc: '實施口罩實名制與邊境管制。' },
+            { id: 111, title: '台積電赴美建廠', year: 2020, period: 'modern', level: 3, wiki: '台灣積體電路製造', desc: '象徵台灣半導體產業的全球戰略佈局。' },
+            { id: 112, title: '公投綁大選廢除', year: 2021, period: 'modern', level: 3, wiki: '2021年中華民國全國性公民投票', desc: '四大公投案皆未通過，確立公投與大選脫鉤。' },
+            { id: 113, title: '義務役恢復一年', year: 2024, period: 'modern', level: 2, wiki: '中華民國兵役制度', desc: '因應兩岸局勢，延長義務役役期。' }
+        ];
+
+
+        // --- 狀態與遊戲邏輯 ---
+        const ANIMAL_ICONS = ['fa-dog', 'fa-cat', 'fa-dragon', 'fa-frog', 'fa-hippo', 'fa-otter', 'fa-fish', 'fa-spider'];
+        
+        // ===== 排行榜資料 (localStorage) =====
+        const LEADERBOARD_KEY = 'tw_history_solo_lb';
+        const getLeaderboard = () => { try { return JSON.parse(localStorage.getItem(LEADERBOARD_KEY) || '[]'); } catch(e){ return []; } };
+        const saveLeaderboard = (lb) => { try { localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(lb)); } catch(e){} };
+        const addToLeaderboard = (name, cardsPlaced, seconds) => {
+            const lb = getLeaderboard();
+            lb.push({ name, cardsPlaced, seconds, date: new Date().toLocaleDateString('zh-TW') });
+            lb.sort((a,b) => b.cardsPlaced - a.cardsPlaced || a.seconds - b.seconds);
+            saveLeaderboard(lb.slice(0, 20));
+        };
+
+        let state = {
+            screen: 'menu', mode: 'normal', isVsAI: false, aiDifficulty: 0.7,
+            deck: [], timeline: [], players: [], currentPlayerIndex: 0, 
+            selectedCardId: null, previewCard: null, roundNum: 1, winners: [],
+            gameSeconds: 0, gameTimerInterval: null,
+            // 無限挑戰模式
+            isSoloInfinite: false,
+            soloCard: null,          // 當前抽到的牌
+            soloPlaced: 0,           // 成功放置張數
+            soloFailed: false        // 是否失敗
+        };
+
+
+        // 新增：退出邏輯處理
+        const handleHomeClick = () => {
+            audioManager.playSFX('select');
+            document.getElementById('confirm-modal').classList.remove('hidden');
+            document.getElementById('confirm-modal').classList.add('flex');
+        };
+
+
+        const closeConfirmModal = () => {
+            audioManager.playSFX('click');
+            document.getElementById('confirm-modal').classList.add('hidden');
+            document.getElementById('confirm-modal').classList.remove('flex');
+        };
+
+
+        const confirmQuitGame = () => {
+            audioManager.playSFX('click');
+            stopTimer();
+            audioManager.switchToLobbyBGM();
+            state.screen = 'menu';
+            document.getElementById('game-header').classList.add('hidden');
+            document.getElementById('confirm-modal').classList.add('hidden');
+            document.getElementById('confirm-modal').classList.remove('flex');
+            render();
+        };
+
+
+        const shuffle = (array) => { for(let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array; };
+        const formatYear = (year) => year < 0 ? `西元前 ${Math.abs(year)} 年` : `西元 ${year} 年`;
+        const formatTime = (seconds) => `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${(seconds % 60).toString().padStart(2, '0')}`;
+
+
+        const startTimer = () => { clearInterval(state.gameTimerInterval); state.gameSeconds = 0; state.gameTimerInterval = setInterval(() => { state.gameSeconds++; document.getElementById('game-timer').innerText = formatTime(state.gameSeconds); }, 1000); };
+        const stopTimer = () => clearInterval(state.gameTimerInterval);
+
+
+        const showToast = (message, isSuccess, duration = 3000) => {
+            const toast = document.getElementById('toast');
+            toast.innerHTML = isSuccess ? `<i class="fas fa-check-circle mr-2 text-green-400"></i> ${message}` : `<i class="fas fa-times-circle mr-2 text-red-400"></i> ${message}`;
+            toast.className = `fixed top-12 left-1/2 transform -translate-x-1/2 z-[100] px-6 py-2 rounded-full text-white font-bold text-sm transition-all duration-300 shadow-2xl glass-panel border-b-2 ${isSuccess ? 'border-green-500' : 'border-red-500'}`;
+            toast.style.opacity = '1'; toast.style.transform = 'translate(-50%, 0)';
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translate(-50%, -10px)'; }, duration);
+        };
+
+
+        const startGame = (playerCount, selectedPeriods, aiDifficulty, questionDifficulty) => {
+            audioManager.playSFX('click');
+            let filteredCards = ALL_CARDS.filter(c => selectedPeriods.includes(c.period) && c.level <= questionDifficulty);
+            if (filteredCards.length < playerCount * 4 + 1) return alert('題庫不足！請增加時代或降低難度。');
+            
+            state.aiDifficulty = parseFloat(aiDifficulty);
+            state.deck = shuffle([...filteredCards]);
+            state.timeline = [state.deck.pop()];
+            state.players = [];
+            
+            let icons = shuffle([...ANIMAL_ICONS]);
+            
+            if (state.isVsAI) {
+                state.players.push({ id: 0, name: '玩家 1', icon: icons[0], isAI: false, hand: Array.from({length:4}, ()=>state.deck.pop()), corner: 'BL' });
+                state.players.push({ id: 1, name: '玩家 2 (AI)', icon: icons[1], isAI: true, hand: Array.from({length:4}, ()=>state.deck.pop()), corner: 'TR' });
+            } else {
+                const corners = ['BL', 'BR', 'TL', 'TR']; // 依序分配給 1, 2, 3, 4
+                for(let i = 0; i < playerCount; i++) {
+                    state.players.push({ id: i, name: `玩家 ${i + 1}`, icon: icons[i], isAI: false, hand: Array.from({length:4}, ()=>state.deck.pop()), corner: corners[i] });
+                }
+            }
+            
+            state.currentPlayerIndex = 0; state.roundNum = 1; state.selectedCardId = null; state.previewCard = null;
+            document.getElementById('display-round').innerText = `第 1 回合`;
+            // 移除原本的模式顯示文字更新
+            document.getElementById('game-deck-count').innerText = state.deck.length;
+            
+            startTimer(); audioManager.switchToGameBGM(); state.screen = 'play'; transitionToTurn();
+        };
+
+
+        const transitionToTurn = () => {
+            state.selectedCardId = null; state.previewCard = null;
+            if (state.players[state.currentPlayerIndex].isAI) { render(); setTimeout(executeAITurn, 1800); }
+            else render();
+        };
+
+
+        const executeAITurn = () => {
+            const ai = state.players[state.currentPlayerIndex];
+            if (!ai.hand.length) return endTurn();
+            const card = ai.hand[Math.floor(Math.random() * ai.hand.length)];
+            state.selectedCardId = card.id; render(); 
+
+            setTimeout(() => {
+                // 找出所有合法插入位置
+                let valid = [];
+                for (let i = 0; i <= state.timeline.length; i++) {
+                    if (i === 0 && card.year <= state.timeline[0].year) valid.push(i);
+                    else if (i === state.timeline.length && card.year >= state.timeline[i-1].year) valid.push(i);
+                    else if (i > 0 && i < state.timeline.length && card.year >= state.timeline[i-1].year && card.year <= state.timeline[i].year) valid.push(i);
+                }
+
+                let idx;
+                if (valid.length === 0) {
+                    // 理論上不應發生，但若有重複年份造成無合法位置，找最接近的位置
+                    let minDiff = Infinity;
+                    idx = 0;
+                    for (let i = 0; i <= state.timeline.length; i++) {
+                        const ref = i === 0 ? state.timeline[0].year : state.timeline[i-1].year;
+                        const diff = Math.abs(card.year - ref);
+                        if (diff < minDiff) { minDiff = diff; idx = i; }
+                    }
+                } else if (Math.random() < state.aiDifficulty) {
+                    // 高難度：從合法位置中選
+                    idx = valid[Math.floor(Math.random() * valid.length)];
+                } else {
+                    // 低難度：故意選錯（從非合法位置選，若全都合法就隨機）
+                    const allPositions = Array.from({length: state.timeline.length + 1}, (_, i) => i);
+                    const wrong = allPositions.filter(i => !valid.includes(i));
+                    idx = wrong.length ? wrong[Math.floor(Math.random() * wrong.length)] : valid[Math.floor(Math.random() * valid.length)];
+                }
+                handleGapClick(idx, true);
+            }, 1000);
+        };
+
+
+        const handleGapClick = (insertIndex, isAITurn = false) => {
+            const p = state.players[state.currentPlayerIndex];
+            if (!isAITurn && p.isAI) return; 
+            if (!state.selectedCardId) return showToast("請先點選一張手牌！", false) || audioManager.playSFX('wrong');
+
+
+            const cIdx = p.hand.findIndex(c => c.id === state.selectedCardId);
+            const card = p.hand[cIdx];
+
+
+            let ok = false;
+            if (insertIndex === 0) ok = card.year <= state.timeline[0].year;
+            else if (insertIndex === state.timeline.length) ok = card.year >= state.timeline[insertIndex-1].year;
+            else ok = card.year >= state.timeline[insertIndex-1].year && card.year <= state.timeline[insertIndex].year;
+
+
+            if (ok) {
+                audioManager.playSFX('correct'); showToast(`🎯 ${p.name} 排列正確！`, true);
+                state.timeline.splice(insertIndex, 0, card); p.hand.splice(cIdx, 1);
+            } else {
+                audioManager.playSFX('wrong'); showToast(`❌ 答錯！【${card.title}】發生於 ${formatYear(card.year)}`, false, 4000);
+                state.deck.unshift(card); shuffle(state.deck); p.hand.splice(cIdx, 1);
+                if (state.deck.length) p.hand.push(state.deck.pop());
+            }
+            
+            state.selectedCardId = null; state.previewCard = null;
+            document.getElementById('game-deck-count').innerText = state.deck.length;
+            render();
+            if (!p.hand.length) setTimeout(() => endGame(p), 1500); else setTimeout(endTurn, 2000);
+        };
+
+
+        const endTurn = () => {
+            state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
+            if (state.currentPlayerIndex === 0) document.getElementById('display-round').innerText = `第 ${++state.roundNum} 回合`;
+            transitionToTurn();
+        };
+
+
+        const endGame = (winner) => { stopTimer(); audioManager.playSFX('win'); setTimeout(()=>audioManager.switchToLobbyBGM(),1500); state.winners = [winner]; state.screen = 'gameover'; render(); };
+
+
+        const openPreview = (cardId, isCurrentPlayer) => {
+            audioManager.playSFX('select');
+            let found = null;
+            state.players.forEach(p => { const c = p.hand.find(x => x.id === cardId); if(c) found = {card: c, isOwner: p.id === state.players[state.currentPlayerIndex].id}; });
+            if(found) { state.previewCard = found; render(); }
+        };
+
+
+        const confirmSelectCard = () => {
+            audioManager.playSFX('click'); state.selectedCardId = state.previewCard.card.id; state.previewCard = null; render();
+            showToast(`請選擇中央的「發光隙縫」插入史料`, true, 3000);
+        };
+
+
+        // --- 畫面渲染 ---
+        
+        // 渲染極小化手牌 (公開正面)
+        const renderMiniCard = (card, isCurrentActive, isOwnerActive) => {
+            const isSelected = state.selectedCardId === card.id;
+            const borderStyle = isSelected ? 'border-amber-400 shadow-[0_0_15px_#f59e0b]' : 'border-slate-700/80';
+            
+            return `
+            <div onclick="openPreview(${card.id})" class="mini-card-container cursor-pointer relative ${isOwnerActive ? 'hover:-translate-y-2 hover:z-20' : 'opacity-80'}">
+                <div class="mini-card w-12 h-[72px] sm:w-14 sm:h-[84px] bg-slate-200 rounded border-2 ${borderStyle} flex flex-col p-0.5 overflow-hidden">
+                    <div class="h-[60%] w-full bg-slate-900 flex items-center justify-center">
+                        <img src="${renderWikiImage(card.wiki)}" data-wiki="${card.wiki}" class="object-cover w-full h-full opacity-0 transition-opacity" onerror="this.src='${noPicSvg}'; this.classList.remove('opacity-0');"/>
+                    </div>
+                    <div class="h-[40%] w-full flex items-center justify-center bg-white px-0.5 border-t border-slate-300">
+                        <p class="font-bold text-[7px] sm:text-[8px] text-center leading-[1.1] serif-font text-slate-800 line-clamp-2 break-all">${card.title}</p>
+                    </div>
+                    ${isSelected ? `<div class="absolute -top-1 -right-1 bg-amber-500 text-white rounded-full w-3 h-3 flex items-center justify-center text-[7px] shadow"><i class="fas fa-check"></i></div>` : ''}
+                </div>
+            </div>`;
+        };
+
+
+        const renderTimelineCard = (card) => `
+            <div class="w-24 h-36 sm:w-32 sm:h-44 bg-gradient-to-b from-amber-50 to-orange-50 rounded-lg shadow-xl border-2 border-amber-300 flex flex-col overflow-hidden relative shrink-0 transform transition hover:scale-105 hover:-translate-y-2 hover:z-20 cursor-pointer" onclick="audioManager.playSFX('select'); showToast('${card.title} : ${card.desc}', true, 4000);">
+                <div class="absolute inset-1 border border-amber-700/10 pointer-events-none rounded"></div>
+                <div class="h-[45%] w-full p-2 flex items-center justify-center text-center border-b border-amber-600/30 bg-white/60">
+                    <p class="font-bold text-xs sm:text-sm text-amber-950 serif-font leading-tight line-clamp-2" title="${card.title}">${card.title}</p>
+                </div>
+                <div class="h-[55%] w-full flex flex-col items-center justify-center bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMSIvPgo8L3N2Zz4=')]">
+                    <p class="font-black text-sm sm:text-base text-amber-800 drop-shadow">${formatYear(card.year)}</p>
+                    <p class="text-[9px] text-amber-700 mt-1 font-bold bg-amber-200/50 px-1.5 rounded">${ALL_PERIODS.find(p=>p.id===card.period).name.slice(0,2)}</p>
+                </div>
+            </div>
+        `;
+
+
+        const renderGap = (index, showHighlight) => `
+            <div class="flex items-center justify-center px-1 shrink-0 cursor-pointer group h-full" onclick="handleGapClick(${index})">
+                <div class="w-8 sm:w-12 h-28 sm:h-32 border-2 border-dashed rounded-lg flex items-center justify-center transition-all ${showHighlight ? 'gap-pulse border-amber-400' : 'border-emerald-700/40 bg-black/10 group-hover:bg-amber-500/15 group-hover:border-amber-400/50'}">
+                    <i class="fas fa-plus text-[10px] sm:text-xs ${showHighlight ? 'text-amber-300' : 'text-emerald-800 group-hover:text-amber-400'}"></i>
+                </div>
+            </div>
+        `;
+
+
+        // 偵測橫向/直向模式
+        const isLandscape = () => window.innerWidth > window.innerHeight;
+
+        // 渲染四角玩家
+        // 橫向：玩家狀態靠左，手牌在狀態右側（水平排列），面板貼近上下邊
+        // 直向：狀態在上，手牌在下（原本樣式）
+        const renderCornerPlayer = (p, activePId) => {
+            if(!p) return '';
+            const isActive = p.id === activePId;
+            const landscape = isLandscape();
+            
+            // 定位：橫向時盡量靠上下邊，讓中間時間軸有空間
+            let posClass = '';
+            if (landscape) {
+                if(p.corner === 'TL') posClass = 'top-10 left-1';
+                if(p.corner === 'TR') posClass = 'top-10 right-1';
+                if(p.corner === 'BL') posClass = 'bottom-1 left-1';
+                if(p.corner === 'BR') posClass = 'bottom-1 right-1';
+            } else {
+                if(p.corner === 'TL') posClass = 'top-12 left-2 sm:left-4';
+                if(p.corner === 'TR') posClass = 'top-12 right-2 sm:right-4';
+                if(p.corner === 'BL') posClass = 'bottom-4 left-2 sm:left-4';
+                if(p.corner === 'BR') posClass = 'bottom-4 right-2 sm:right-4';
+            }
+
+            // 四種顏色風格
+            const colorStyles = [
+                { bg: 'bg-red-950/70', border: 'border-red-600/50', iconTxt: 'text-red-400', nameBg: 'bg-red-900/60' },
+                { bg: 'bg-blue-950/70', border: 'border-blue-600/50', iconTxt: 'text-blue-400', nameBg: 'bg-blue-900/60' },
+                { bg: 'bg-green-950/70', border: 'border-green-600/50', iconTxt: 'text-green-400', nameBg: 'bg-green-900/60' },
+                { bg: 'bg-yellow-950/70', border: 'border-yellow-600/50', iconTxt: 'text-yellow-400', nameBg: 'bg-yellow-900/60' }
+            ];
+            const cStyle = colorStyles[p.id % 4];
+
+            const avatarStyle = isActive 
+                ? 'bg-amber-500 text-white ring-2 ring-amber-500/50 shadow-[0_0_10px_#f59e0b] scale-105' 
+                : `bg-slate-800/80 border border-slate-600 ${cStyle.iconTxt} opacity-80`;
+
+            const activeContainerStyle = isActive ? 'ring-2 ring-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.2)] scale-[1.02] z-30' : 'opacity-90';
+
+            if (landscape) {
+                // 橫向：左右排列（狀態區 | 手牌區）
+                return `
+                    <div class="absolute ${posClass} flex flex-row items-center gap-1 z-20 pointer-events-auto p-1 rounded-xl border ${cStyle.border} ${cStyle.bg} backdrop-blur-md transition-all duration-300 ${activeContainerStyle}">
+                        
+                        <!-- 玩家狀態區（左側豎排） -->
+                        <div class="flex flex-col items-center gap-1 shrink-0">
+                            <div class="w-7 h-7 rounded-lg flex items-center justify-center text-sm transition-all duration-300 ${avatarStyle}">
+                                <i class="fas ${p.icon}"></i>
+                            </div>
+                            <div class="${cStyle.nameBg} px-1 py-0.5 rounded text-[8px] font-bold text-center border border-white/20 ${isActive?'text-amber-300':'text-slate-200'} leading-tight">
+                                ${p.name.replace(' (AI)','')}${p.isAI?'<br><span class="text-blue-300">AI</span>':''}<br><span class="opacity-70">(${p.hand.length})</span>
+                            </div>
+                            <div class="min-h-[12px] flex items-center justify-center">
+                                ${isActive && p.isAI ? `<span class="text-[7px] text-blue-300 animate-pulse font-bold text-center"><i class="fas fa-cog fa-spin"></i><br>思考</span>` : ''}
+                                ${isActive && !p.isAI ? `<span class="text-[7px] text-amber-400 animate-bounce font-bold text-center"><i class="fas fa-hand-point-up"></i><br>出牌</span>` : ''}
+                            </div>
+                        </div>
+
+                        <!-- 手牌區（右側水平排列） -->
+                        <div class="flex flex-row items-center gap-0">
+                            ${p.hand.map(card => renderMiniCard(card, true, isActive)).join('')}
+                        </div>
+                    </div>
+                `;
+            } else {
+                // 直向：上下排列（原本樣式）
+                return `
+                    <div class="absolute ${posClass} flex flex-col items-center gap-1.5 z-20 pointer-events-auto p-1.5 sm:p-2 rounded-xl border ${cStyle.border} ${cStyle.bg} backdrop-blur-md transition-all duration-300 ${activeContainerStyle}">
+                        
+                        <!-- 玩家狀態區 -->
+                        <div class="flex flex-row items-center justify-center gap-2 w-full px-1">
+                            <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-sm sm:text-base transition-all duration-300 ${avatarStyle}">
+                                <i class="fas ${p.icon}"></i>
+                            </div>
+                            <div class="flex flex-col items-start">
+                                <div class="${cStyle.nameBg} px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold text-center border border-white/20 ${isActive?'text-amber-300':'text-slate-200'}">
+                                    ${p.name} <span class="opacity-70 ml-0.5">(${p.hand.length})</span>
+                                </div>
+                                <div class="h-3 flex items-center mt-0.5">
+                                    ${isActive && p.isAI ? `<span class="text-[8px] text-blue-300 animate-pulse font-bold"><i class="fas fa-cog fa-spin mr-0.5"></i>思考中</span>` : ''}
+                                    ${isActive && !p.isAI ? `<span class="text-[8px] text-amber-400 animate-bounce font-bold"><i class="fas fa-hand-point-up mr-0.5"></i>你的回合</span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 手牌區 -->
+                        <div class="flex flex-row justify-center pl-1 sm:pl-2 pr-1 pt-1">
+                            ${p.hand.map(card => renderMiniCard(card, true, isActive)).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+        };
+
+
+        const renderGameTable = () => {
+            const activeId = state.players[state.currentPlayerIndex].id;
+            const hasSelection = state.selectedCardId !== null;
+
+
+            return `
+                <div class="absolute inset-0 mahjong-table table-border pointer-events-none">
+                    
+                    <!-- 四角玩家 -->
+                    ${state.players.map(p => renderCornerPlayer(p, activeId)).join('')}
+
+
+                    <!-- 中央時間軸海 (最大化拉長) -->
+                    <div id="timeline-area" class="absolute ${isLandscape() ? 'top-[40px] bottom-[1px] left-[180px] right-[180px]' : 'top-[140px] bottom-[130px] left-2 right-2 sm:left-12 sm:right-12'} flex flex-col items-center justify-center pointer-events-auto">
+                        <div class="w-full h-full ${isLandscape() ? 'max-h-full' : 'max-h-[260px]'} bg-black/40 backdrop-blur-md rounded-2xl border border-emerald-500/20 p-2 sm:p-4 shadow-2xl flex flex-col relative">
+                            <!-- 裝飾 -->
+                            <div class="absolute inset-0 pointer-events-none rounded-2xl shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] border border-white/5"></div>
+                            
+                            <div class="text-center text-[10px] text-emerald-400/60 font-bold tracking-widest mb-1 sm:mb-2 flex-shrink-0 relative z-10">
+                                <i class="fas fa-water mr-1"></i> 台灣歷史時間軸 <i class="fas fa-water ml-1"></i>
+                            </div>
+                            
+                            <!-- 橫向滾動軌道 -->
+                            <div class="flex-1 overflow-x-auto overflow-y-hidden timeline-scroll w-full relative z-10" id="timelineContainer">
+                                <div class="flex items-center h-full min-w-max px-2 sm:px-8 pb-2">
+                                    ${(() => {
+                                        let html = '';
+                                        for (let i = 0; i <= state.timeline.length; i++) {
+                                            html += renderGap(i, hasSelection);
+                                            if (i < state.timeline.length) html += renderTimelineCard(state.timeline[i]);
+                                        }
+                                        return html;
+                                    })()}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- 卡牌預覽彈窗 -->
+                    ${state.previewCard ? `
+                        <div class="fixed inset-0 bg-black/80 z-[80] flex items-center justify-center p-4 pointer-events-auto">
+                            <div class="glass-panel p-5 sm:p-6 rounded-2xl w-full max-w-sm border border-amber-400/50 shadow-[0_0_50px_rgba(245,158,11,0.2)] animate-scale-up flex flex-col items-center">
+                                <div class="w-40 h-56 sm:w-48 sm:h-64 bg-slate-100 rounded-xl overflow-hidden shadow-2xl border-4 border-amber-500 flex flex-col text-slate-900 mb-4">
+                                    <div class="h-[55%] w-full bg-slate-800"><img src="${renderWikiImage(state.previewCard.card.wiki)}" data-wiki="${state.previewCard.card.wiki}" class="w-full h-full object-cover" onerror="this.src='${noPicSvg}';"/></div>
+                                    <div class="h-[45%] w-full p-2 flex flex-col items-center justify-center bg-gradient-to-b from-slate-100 to-slate-200 text-center border-t border-amber-500/30">
+                                        <p class="font-bold text-sm sm:text-base serif-font text-slate-800 leading-tight">${state.previewCard.card.title}</p>
+                                        <p class="text-[9px] text-slate-500 font-bold mt-1">${ALL_PERIODS.find(p => p.id === state.previewCard.card.period).name}</p>
+                                    </div>
+                                </div>
+                                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed text-center mb-5 max-h-24 overflow-y-auto px-2">
+                                    ${state.previewCard.card.desc}
+                                </p>
+                                <div class="flex gap-3 w-full">
+                                    <button onclick="audioManager.playSFX('click'); state.previewCard = null; render();" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2.5 rounded-lg text-sm border border-slate-600">
+                                        關閉返回
+                                    </button>
+                                    ${state.previewCard.isOwner && !state.players[state.currentPlayerIndex].isAI ? `
+                                    <button onclick="confirmSelectCard()" class="flex-1 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold py-2.5 rounded-lg text-sm shadow-md">
+                                        確認出這張
+                                    </button>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+
+
+                </div>
+            `;
+        };
+
+
+        const renderMenu = () => {
+            // Start lobby BGM when showing menu
+            setTimeout(() => { if(!audioManager.isMuted) audioManager.switchToLobbyBGM(); }, 100);
+            return `
+            <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-10 lobby-bg">
+                <!-- 飄落金葉裝飾 -->
+                <div class="leaf" style="left:5%;animation-duration:6s;animation-delay:0s;">🍂</div>
+                <div class="leaf" style="left:15%;animation-duration:8s;animation-delay:1.5s;">🍃</div>
+                <div class="leaf" style="left:75%;animation-duration:7s;animation-delay:0.5s;">🍂</div>
+                <div class="leaf" style="left:88%;animation-duration:9s;animation-delay:2s;">🍃</div>
+                <div class="leaf" style="left:45%;animation-duration:11s;animation-delay:3s;">🌿</div>
+                <!-- 頂部燈籠裝飾列 -->
+                <div class="absolute top-0 left-0 right-0 h-16 flex items-start justify-around px-4 pointer-events-none overflow-hidden">
+                    ${[0,1,2,3,4,5,6].map(i=>`
+                    <div style="animation-delay:${i*0.4}s" class="flex flex-col items-center">
+                        <div class="w-0.5 h-6 bg-amber-700/60"></div>
+                        <div class="lobby-lantern w-5 h-7 sm:w-6 sm:h-9" style="background:${['#dc2626','#d97706','#dc2626','#b45309','#dc2626','#d97706','#dc2626'][i]};color:${['#ef4444','#f59e0b','#ef4444','#d97706','#ef4444','#f59e0b','#ef4444'][i]};animation-delay:${i*0.3}s;">
+                        </div>
+                    </div>`).join('')}
+                </div>
+                <div class="glass-panel p-8 sm:p-12 rounded-3xl max-w-xl w-full animate-scale-up border-t border-l border-amber-500/20 shadow-2xl relative overflow-hidden">
+                    <div class="absolute -top-10 -right-10 text-[150px] text-amber-500/5 rotate-12 pointer-events-none"><i class="fas fa-landmark"></i></div>
+                    <span class="bg-amber-600/80 border border-amber-400 text-white text-[10px] font-bold px-3 py-1 rounded-full tracking-widest shadow-md mb-4 inline-block">113 題完整擴充 · 四角對戰版</span>
+                    <h1 class="text-4xl sm:text-6xl font-black mb-3 text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-amber-400 to-yellow-600 serif-font tracking-wider py-1">台灣歷史時間軸</h1>
+                    <p class="text-slate-300 mb-8 text-sm tracking-widest font-light">牌桌四角，一眼看破歷史長河</p>
+                    <div class="space-y-4 max-w-xs mx-auto relative z-10">
+                        <button onclick="audioManager.playSFX('click'); state.isVsAI=true; state.screen='setup'; render();" class="w-full bg-gradient-to-r from-emerald-800 to-emerald-950 hover:from-emerald-700 hover:to-emerald-900 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-all hover:scale-105 text-sm flex justify-center items-center gap-2 border border-emerald-500/30 lobby-btn"><i class="fas fa-robot text-base"></i> 單機對戰 AI</button>
+                        <button onclick="audioManager.playSFX('click'); state.isVsAI=false; state.screen='setup'; render();" class="w-full bg-gradient-to-r from-amber-800 to-amber-950 hover:from-amber-700 hover:to-amber-900 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-all hover:scale-105 text-sm flex justify-center items-center gap-2 border border-amber-500/30"><i class="fas fa-users text-base"></i> 多人同樂 (明牌桌)</button>
+                        <button onclick="audioManager.playSFX('click'); state.screen='gallery'; render();" class="w-full bg-slate-800/80 hover:bg-slate-700 text-slate-300 font-bold py-3 px-6 rounded-xl shadow-md transition-all hover:scale-105 text-sm flex justify-center items-center gap-2 border border-slate-600 lobby-btn"><i class="fas fa-book-open text-base"></i> 史料圖鑑 (113題)</button>
+                        <button onclick="audioManager.playSFX('click'); state.screen='soloSetup'; render();" class="w-full btn-infinite lobby-btn text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-all text-sm flex justify-center items-center gap-2"><i class="fas fa-infinity text-base"></i> 無限挑戰模式 <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded ml-1">單人</span></button>
+                        <button onclick="audioManager.playSFX('click'); state.screen='leaderboard'; render();" class="w-full bg-slate-900/80 hover:bg-slate-800 text-amber-400 font-bold py-3 px-6 rounded-xl shadow-md transition-all lobby-btn text-sm flex justify-center items-center gap-2 border border-amber-900/50"><i class="fas fa-trophy text-base text-amber-500"></i> 無限挑戰排行榜</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+
+        const renderSetup = () => `
+            <div class="absolute inset-0 flex flex-col items-center justify-center p-4 overflow-y-auto z-10 bg-[#02140f]">
+                <div class="glass-panel p-6 sm:p-10 rounded-2xl w-full max-w-2xl animate-scale-up relative border border-amber-500/20 my-auto">
+                    <button onclick="audioManager.playSFX('click'); state.screen='menu'; render();" class="absolute top-6 left-6 text-slate-400 hover:text-amber-400 transition text-sm"><i class="fas fa-arrow-left mr-1"></i> 返回</button>
+                    <h2 class="text-2xl font-bold mb-6 text-center text-yellow-500 serif-font border-b border-white/10 pb-4 mt-8 sm:mt-0">${state.isVsAI ? '單機對戰設定' : '多人牌桌設定'}</h2>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                        ${state.isVsAI ? `
+                        <div class="bg-black/30 p-4 rounded-xl border border-white/5"><label class="block text-amber-400 font-bold mb-2 text-xs"><i class="fas fa-brain mr-1"></i>AI 難度</label><select id="aiDiff" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white text-xs"><option value="0.45">新手</option><option value="0.75" selected>專家</option><option value="0.95">大師</option></select><input type="hidden" id="playerCount" value="2"></div>` : `
+                        <div class="bg-black/30 p-4 rounded-xl border border-white/5"><label class="block text-amber-400 font-bold mb-2 text-xs"><i class="fas fa-users mr-1"></i>參賽人數</label><select id="playerCount" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white text-xs"><option value="2">2 人</option><option value="3">3 人</option><option value="4" selected>4 人滿桌</option></select><input type="hidden" id="aiDiff" value="0.75"></div>`}
+                        <div class="bg-black/30 p-4 rounded-xl border border-white/5"><label class="block text-amber-400 font-bold mb-2 text-xs"><i class="fas fa-layer-group mr-1"></i>考驗難度</label><select id="qDiff" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white text-xs"><option value="1">簡易</option><option value="2" selected>中等 (常規)</option><option value="3">極難 (含冷門)</option></select></div>
+                    </div>
+                    
+                    <div class="mb-6 bg-black/30 p-4 rounded-xl border border-white/5"><label class="block text-amber-400 font-bold mb-3 text-xs"><i class="fas fa-calendar-alt mr-1"></i>時代主題 (複選)</label>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="periodCheckboxes">
+                            ${ALL_PERIODS.map(p => `<label class="flex items-center space-x-2 bg-slate-800/60 p-2 rounded cursor-pointer border border-slate-700/50"><input type="checkbox" value="${p.id}" checked class="form-checkbox h-3.5 w-3.5 text-amber-500 rounded bg-slate-900 border-slate-600"><span class="text-[11px] text-slate-200">${p.name}</span></label>`).join('')}
+                        </div>
+                    </div>
+                    <button onclick="
+                        const checked = Array.from(document.querySelectorAll('#periodCheckboxes input:checked')).map(cb => cb.value);
+                        if(!checked.length) return alert('至少選一個時代！');
+                        startGame(parseInt(document.getElementById('playerCount').value), checked, document.getElementById('aiDiff').value, parseInt(document.getElementById('qDiff').value));
+                    " class="w-full bg-gradient-to-r from-amber-600 to-orange-600 text-white font-bold py-3 rounded-xl shadow-lg text-sm tracking-widest hover:scale-[1.02] transition-transform">發牌開局</button>
+                </div>
+            </div>
+        `;
+
+
+        const renderGameOver = () => `
+            <div class="absolute inset-0 bg-black/90 flex flex-col items-center justify-center p-6 z-50">
+                <div class="glass-panel p-10 sm:p-14 rounded-3xl max-w-md w-full text-center border border-amber-500/50 shadow-[0_0_50px_rgba(245,158,11,0.3)] animate-scale-up">
+                    <i class="fas fa-trophy text-6xl text-amber-400 mb-6 drop-shadow-[0_0_15px_rgba(245,158,11,0.8)]"></i>
+                    <h2 class="text-4xl font-black mb-4 text-white serif-font tracking-widest">勝負已分</h2>
+                    <p class="text-xl text-amber-300 font-bold mb-8">贏家：${state.winners.map(w => w.name).join(', ')}</p>
+                    
+                    <div class="bg-slate-900/80 rounded-xl p-4 mb-8 border border-slate-700">
+                        <div class="flex justify-between items-center text-sm text-slate-300 mb-2"><span>歷時回合</span><span class="font-bold text-white">${state.roundNum} 回合</span></div>
+                        <div class="flex justify-between items-center text-sm text-slate-300 mb-2"><span>耗費時間</span><span class="font-bold text-white">${formatTime(state.gameSeconds)}</span></div>
+                        <div class="flex justify-between items-center text-sm text-slate-300"><span>公海史料</span><span class="font-bold text-white">${state.timeline.length} 張</span></div>
+                    </div>
+
+
+                    <button onclick="audioManager.playSFX('click'); audioManager.switchToLobbyBGM(); state.screen='menu'; document.getElementById('game-header').classList.add('hidden'); render();" class="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold py-4 rounded-xl shadow-lg text-lg tracking-widest">返回主選單</button>
+                </div>
+            </div>
+        `;
+
+
+        const renderGallery = () => {
+            const sortedCards = [...ALL_CARDS].sort((a,b) => a.year - b.year);
+            return `
+            <div class="absolute inset-0 bg-[#090d16] flex flex-col z-50">
+                <div class="bg-slate-900 border-b border-slate-700 p-4 flex items-center justify-between shadow-lg z-10 shrink-0">
+                    <button onclick="audioManager.playSFX('click'); state.screen='menu'; render();" class="text-slate-400 hover:text-white transition px-4 py-2 bg-slate-800 rounded-lg text-sm"><i class="fas fa-arrow-left mr-2"></i>返回</button>
+                    <h2 class="text-xl font-bold text-amber-500 serif-font">史料圖鑑 (${ALL_CARDS.length} 題)</h2>
+                    <div class="w-20"></div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-4 sm:p-8">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6 max-w-7xl mx-auto pb-12">
+                        ${sortedCards.map(card => `
+                            <div class="bg-slate-800 rounded-xl overflow-hidden shadow-lg border border-slate-700 hover:border-amber-500/50 transition-all hover:-translate-y-1 group">
+                                <div class="h-32 sm:h-40 bg-slate-900 relative">
+                                    <img src="${renderWikiImage(card.wiki)}" data-wiki="${card.wiki}" class="w-full h-full object-cover opacity-0 transition-opacity duration-500" onerror="this.src='${noPicSvg}';"/>
+                                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
+                                    <div class="absolute bottom-2 left-2 right-2 flex justify-between items-end">
+                                        <span class="text-[10px] font-bold bg-amber-600/80 text-white px-1.5 py-0.5 rounded backdrop-blur-sm shadow">${formatYear(card.year)}</span>
+                                        <span class="text-[10px] text-slate-300 bg-black/60 px-1.5 py-0.5 rounded backdrop-blur-sm">${ALL_PERIODS.find(p=>p.id===card.period).name.slice(0,2)}</span>
+                                    </div>
+                                </div>
+                                <div class="p-3">
+                                    <h3 class="font-bold text-sm text-slate-100 mb-1 group-hover:text-amber-400 transition-colors line-clamp-1" title="${card.title}">${card.title}</h3>
+                                    <p class="text-[10px] text-slate-400 line-clamp-3 leading-relaxed" title="${card.desc}">${card.desc}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+            `;
+        };
+
+
+
+        // ===== 無限挑戰模式邏輯 =====
+        const startSoloInfinite = (selectedPeriods, questionDifficulty) => {
+            audioManager.playSFX('click');
+            let cards = ALL_CARDS.filter(c => selectedPeriods.includes(c.period) && c.level <= questionDifficulty);
+            if(cards.length < 5) return alert('題庫不足！請增加時代或降低難度。');
+            state.isSoloInfinite = true;
+            state.deck = shuffle([...cards]);
+            state.timeline = [state.deck.pop()]; // 起始一張
+            state.soloPlaced = 0;
+            state.soloFailed = false;
+            state.soloCard = state.deck.pop(); // 第一張待放牌
+            state.selectedCardId = state.soloCard ? state.soloCard.id : null;
+            startTimer();
+            audioManager.switchToGameBGM();
+            state.screen = 'soloPlay';
+            document.getElementById('game-header').classList.remove('hidden');
+            document.getElementById('display-round').innerText = '無限挑戰';
+            document.getElementById('game-deck-count').innerText = state.deck.length;
+            render();
+        };
+
+        const handleSoloGapClick = (insertIndex) => {
+            if(!state.soloCard || state.soloFailed) return;
+            const card = state.soloCard;
+            let ok = false;
+            if(insertIndex === 0) ok = card.year <= state.timeline[0].year;
+            else if(insertIndex === state.timeline.length) ok = card.year >= state.timeline[insertIndex-1].year;
+            else ok = card.year >= state.timeline[insertIndex-1].year && card.year <= state.timeline[insertIndex].year;
+
+            if(ok) {
+                audioManager.playSFX('correct');
+                state.timeline.splice(insertIndex, 0, card);
+                state.soloPlaced++;
+                showToast(`🎯 正確！已成功放置 ${state.soloPlaced} 張`, true, 2000);
+                // 抽下一張
+                if(state.deck.length > 0) {
+                    setTimeout(() => {
+                        audioManager.playSFX('card');
+                        state.soloCard = state.deck.pop();
+                        state.selectedCardId = state.soloCard.id;
+                        document.getElementById('game-deck-count').innerText = state.deck.length;
+                        render();
+                    }, 800);
+                } else {
+                    // 牌庫清空 = 通關
+                    state.soloCard = null;
+                    setTimeout(() => endSoloGame(true), 1000);
+                }
+            } else {
+                // 答錯立即結束
+                audioManager.playSFX('wrong');
+                audioManager.playSFX('gameover');
+                state.soloFailed = true;
+                state.screen = 'soloOver';
+                stopTimer();
+                showToast(`❌ 答錯！【${card.title}】發生於 ${formatYear(card.year)}`, false, 5000);
+                // 震動提示
+                document.getElementById('app').classList.add('shake');
+                setTimeout(() => {
+                    document.getElementById('app').classList.remove('shake');
+                    render();
+                }, 600);
+            }
+        };
+
+        const endSoloGame = (cleared) => {
+            stopTimer();
+            audioManager.playSFX(cleared ? 'win' : 'gameover');
+            state.soloFailed = !cleared;
+            state.screen = 'soloOver';
+            render();
+        };
+
+        // 英文小鍵盤彈窗
+        let nameInputVal = '';
+        const renderKeyboard = () => {
+            const rows = [
+                ['Q','W','E','R','T','Y','U','I','O','P'],
+                ['A','S','D','F','G','H','J','K','L'],
+                ['Z','X','C','V','B','N','M','⌫']
+            ];
+            return `
+            <div class="fixed inset-0 bg-black/80 z-[200] flex items-end justify-center pb-4 px-2">
+                <div class="w-full max-w-sm bg-slate-900 border border-amber-500/30 rounded-2xl p-4 shadow-2xl animate-scale-up">
+                    <h3 class="text-center text-amber-400 font-bold text-lg mb-1 serif-font">🏆 留名排行榜</h3>
+                    <p class="text-center text-slate-400 text-xs mb-3">成功放置 <span class="text-white font-bold">${state.soloPlaced}</span> 張 · 耗時 <span class="text-white font-bold">${formatTime(state.gameSeconds)}</span></p>
+                    <!-- 顯示輸入框 -->
+                    <div class="bg-slate-800 border-2 border-amber-500/50 rounded-xl px-4 py-3 mb-3 flex items-center gap-2 min-h-[48px]">
+                        <i class="fas fa-user text-amber-500 text-sm"></i>
+                        <span id="kb-display" class="text-white font-bold text-lg flex-1">${nameInputVal || '<span class="text-slate-600">輸入名字…</span>'}</span>
+                        <span class="w-0.5 h-5 bg-amber-400 animate-pulse"></span>
+                    </div>
+                    <!-- 鍵盤列 -->
+                    ${rows.map((row,ri) => `
+                    <div class="flex gap-1 mb-1 justify-center">
+                        ${row.map(k => `
+                        <button class="kb-key ${k==='⌫'?'del-key':''}" style="width:${k==='⌫'?'44px':'30px'};height:40px;"
+                            onclick="soloKbPress('${k}')">
+                            ${k==='⌫'?'⌫':k}
+                        </button>`).join('')}
+                    </div>`).join('')}
+                    <!-- 空白與確認 -->
+                    <div class="flex gap-1 mt-1">
+                        <button class="kb-key flex-1" style="height:40px;" onclick="soloKbPress(' ')">SPACE</button>
+                        <button style="height:40px;width:70px;border-radius:8px;background:linear-gradient(135deg,#d97706,#92400e);border:1px solid #f59e0b;color:white;font-weight:bold;font-size:13px;cursor:pointer;" onclick="soloKbConfirm()">確認 ✓</button>
+                    </div>
+                </div>
+            </div>`;
+        };
+
+        window.soloKbPress = (k) => {
+            if(k==='⌫') { nameInputVal = nameInputVal.slice(0,-1); }
+            else if(nameInputVal.length < 12) { nameInputVal += k; }
+            const disp = document.getElementById('kb-display');
+            if(disp) disp.innerHTML = nameInputVal || '<span class="text-slate-600">輸入名字…</span>';
+        };
+
+        window.soloKbConfirm = () => {
+            const name = nameInputVal.trim() || 'PLAYER';
+            addToLeaderboard(name, state.soloPlaced, state.gameSeconds);
+            nameInputVal = '';
+            state.screen = 'leaderboard';
+            state.isSoloInfinite = false;
+            audioManager.switchToLobbyBGM();
+            document.getElementById('game-header').classList.add('hidden');
+            render();
+        };
+
+        // 渲染無限挑戰設定頁
+        const renderSoloSetup = () => `
+            <div class="absolute inset-0 flex flex-col items-center justify-center p-4 overflow-y-auto z-10 bg-[#02140f]">
+                <div class="glass-panel p-6 sm:p-10 rounded-2xl w-full max-w-lg animate-scale-up relative border border-purple-500/30 my-auto">
+                    <button onclick="audioManager.playSFX('click'); state.screen='menu'; render();" class="absolute top-6 left-6 text-slate-400 hover:text-amber-400 transition text-sm"><i class="fas fa-arrow-left mr-1"></i> 返回</button>
+                    <div class="text-center mb-6 mt-6">
+                        <div class="text-5xl mb-2">∞</div>
+                        <h2 class="text-2xl font-bold text-purple-300 serif-font">無限挑戰模式</h2>
+                        <p class="text-slate-400 text-xs mt-1">每次抽一張，放錯即結束 · 看你能走多遠</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                        <div class="bg-black/30 p-4 rounded-xl border border-white/5">
+                            <label class="block text-amber-400 font-bold mb-2 text-xs"><i class="fas fa-layer-group mr-1"></i>考驗難度</label>
+                            <select id="soloQDiff" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white text-xs">
+                                <option value="1">簡易</option>
+                                <option value="2" selected>中等 (常規)</option>
+                                <option value="3">極難 (含冷門)</option>
+                            </select>
+                        </div>
+                        <div class="bg-black/30 p-4 rounded-xl border border-white/5">
+                            <label class="block text-amber-400 font-bold mb-2 text-xs"><i class="fas fa-info-circle mr-1"></i>規則說明</label>
+                            <p class="text-[11px] text-slate-300 leading-relaxed">每抽一張放一張<br>放錯立即結束<br>成功張數記入排行</p>
+                        </div>
+                    </div>
+                    <div class="mb-6 bg-black/30 p-4 rounded-xl border border-white/5">
+                        <label class="block text-amber-400 font-bold mb-3 text-xs"><i class="fas fa-calendar-alt mr-1"></i>時代主題 (複選)</label>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="soloPeriodCheckboxes">
+                            ${ALL_PERIODS.map(p => `<label class="flex items-center space-x-2 bg-slate-800/60 p-2 rounded cursor-pointer border border-slate-700/50"><input type="checkbox" value="${p.id}" checked class="form-checkbox h-3.5 w-3.5 text-purple-500 rounded bg-slate-900 border-slate-600"><span class="text-[11px] text-slate-200">${p.name}</span></label>`).join('')}
+                        </div>
+                    </div>
+                    <button onclick="
+                        const checked = Array.from(document.querySelectorAll('#soloPeriodCheckboxes input:checked')).map(cb=>cb.value);
+                        if(!checked.length) return alert('至少選一個時代！');
+                        startSoloInfinite(checked, parseInt(document.getElementById('soloQDiff').value));
+                    " class="w-full bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-600 hover:to-indigo-600 text-white font-bold py-3 rounded-xl shadow-lg text-sm tracking-widest hover:scale-[1.02] transition-transform">
+                        <i class="fas fa-infinity mr-2"></i>開始無限挑戰
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // 渲染無限挑戰遊戲桌
+        const renderSoloPlay = () => {
+            const hasSelection = !!state.soloCard;
+            const card = state.soloCard;
+            return `
+            <div class="absolute inset-0 mahjong-table table-border pointer-events-none">
+                <!-- 當前牌展示（底部中央） -->
+                <div class="absolute bottom-2 left-1/2 -translate-x-1/2 z-30 pointer-events-auto flex flex-col items-center gap-1">
+                    <div class="text-[10px] text-amber-400/80 font-bold tracking-widest">▲ 當前出牌</div>
+                    ${card ? `
+                    <div class="w-20 h-28 sm:w-24 sm:h-36 bg-gradient-to-b from-amber-50 to-orange-50 rounded-xl shadow-2xl border-4 border-purple-400 flex flex-col overflow-hidden animate-scale-up cursor-default">
+                        <div class="h-[50%] w-full bg-slate-800">
+                            <img src="${renderWikiImage(card.wiki)}" data-wiki="${card.wiki}" class="w-full h-full object-cover opacity-0 transition-opacity" onerror="this.src='${noPicSvg}'; this.classList.remove('opacity-0');"/>
+                        </div>
+                        <div class="h-[50%] w-full flex flex-col items-center justify-center bg-white/80 p-1 border-t-2 border-purple-300">
+                            <p class="font-bold text-[9px] sm:text-[10px] text-center serif-font text-slate-800 leading-tight line-clamp-2">${card.title}</p>
+                            <p class="text-[8px] text-purple-600 font-bold mt-0.5">?</p>
+                        </div>
+                        <div class="absolute top-1 left-1 bg-purple-600 text-white text-[8px] font-bold px-1 py-0.5 rounded shadow">
+                            <i class="fas fa-question"></i>
+                        </div>
+                    </div>
+                    <div class="text-[9px] text-slate-400 font-bold">點選時間軸中的缺口放置</div>
+                    ` : '<div class="text-amber-400 font-bold text-sm animate-pulse">⭐ 牌庫已清空！通關！</div>'}
+                </div>
+
+                <!-- 左上角統計 -->
+                <div class="absolute top-[44px] left-2 z-20 glass-panel px-3 py-2 rounded-xl text-xs border border-purple-500/30">
+                    <div class="text-purple-300 font-bold">∞ 無限挑戰</div>
+                    <div class="text-white font-bold text-base">${state.soloPlaced} <span class="text-slate-400 text-[10px]">張</span></div>
+                    <div class="text-slate-400 text-[10px]">剩餘 ${state.deck.length} 張</div>
+                </div>
+
+                <!-- 中央時間軸 -->
+                <div id="timeline-area" class="absolute ${isLandscape() ? 'top-[40px] bottom-[100px] left-4 right-4' : 'top-[50px] bottom-[130px] left-2 right-2 sm:left-6 sm:right-6'} flex flex-col items-center justify-center pointer-events-auto">
+                    <div class="w-full h-full bg-black/40 backdrop-blur-md rounded-2xl border border-purple-500/20 p-2 sm:p-4 shadow-2xl flex flex-col relative">
+                        <div class="absolute inset-0 pointer-events-none rounded-2xl shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] border border-white/5"></div>
+                        <div class="text-center text-[10px] text-purple-400/60 font-bold tracking-widest mb-1 flex-shrink-0">
+                            <i class="fas fa-infinity mr-1"></i> 無限挑戰時間軸 — 點選缺口放置史料牌 <i class="fas fa-infinity ml-1"></i>
+                        </div>
+                        <div class="flex-1 overflow-x-auto overflow-y-hidden timeline-scroll w-full" id="timelineContainer">
+                            <div class="flex items-center h-full min-w-max px-2 sm:px-8 pb-2">
+                                ${(() => {
+                                    let html = '';
+                                    for(let i=0; i<=state.timeline.length; i++) {
+                                        html += `<div class="flex items-center justify-center px-1 shrink-0 cursor-pointer group h-full" onclick="handleSoloGapClick(${i})">
+                                            <div class="w-8 sm:w-12 h-28 sm:h-32 border-2 border-dashed rounded-lg flex items-center justify-center transition-all ${hasSelection ? 'gap-pulse border-purple-400' : 'border-emerald-700/40 bg-black/10'}">
+                                                <i class="fas fa-plus text-[10px] sm:text-xs ${hasSelection ? 'text-purple-300' : 'text-emerald-800'}"></i>
+                                            </div>
+                                        </div>`;
+                                        if(i < state.timeline.length) html += renderTimelineCard(state.timeline[i]);
+                                    }
+                                    return html;
+                                })()}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `;
+        };
+
+        // 渲染無限挑戰結束畫面
+        const renderSoloOver = () => {
+            const showKb = true; // always show keyboard
+            nameInputVal = nameInputVal || '';
+            return `
+            <div class="absolute inset-0 bg-black/90 flex flex-col items-center justify-center p-6 z-50">
+                <div class="glass-panel p-8 sm:p-12 rounded-3xl max-w-md w-full text-center border ${state.soloFailed?'border-red-500/50 shadow-[0_0_50px_rgba(239,68,68,0.2)]':'border-purple-500/50 shadow-[0_0_50px_rgba(139,92,246,0.2)]'} animate-scale-up mb-4">
+                    <div class="text-6xl mb-4">${state.soloFailed ? '💥' : '🌟'}</div>
+                    <h2 class="text-3xl font-black mb-2 serif-font ${state.soloFailed?'text-red-300':'text-purple-300'}">${state.soloFailed ? '挑戰結束！' : '完美通關！'}</h2>
+                    <p class="text-slate-400 text-sm mb-6">${state.soloFailed ? '放置錯誤，記錄已定格' : '牌庫清空，歷史盡在掌握'}</p>
+                    <div class="bg-slate-900/80 rounded-xl p-4 mb-6 border border-slate-700 space-y-2">
+                        <div class="flex justify-between text-sm"><span class="text-slate-400">成功放置</span><span class="font-black text-2xl text-white">${state.soloPlaced} 張</span></div>
+                        <div class="flex justify-between text-sm"><span class="text-slate-400">通關時間</span><span class="font-bold text-white">${formatTime(state.gameSeconds)}</span></div>
+                    </div>
+                    <p class="text-amber-400 text-sm font-bold animate-pulse">請在下方輸入名字留名排行榜 ↓</p>
+                </div>
+                ${renderKeyboard()}
+            </div>
+            `;
+        };
+
+        // 渲染排行榜
+        const renderLeaderboard = () => {
+            const lb = getLeaderboard();
+            return `
+            <div class="absolute inset-0 bg-[#090d16] flex flex-col z-50">
+                <div class="bg-slate-900 border-b border-slate-700 p-4 flex items-center justify-between shadow-lg z-10 shrink-0">
+                    <button onclick="audioManager.playSFX('click'); state.screen='menu'; render();" class="text-slate-400 hover:text-white transition px-4 py-2 bg-slate-800 rounded-lg text-sm"><i class="fas fa-arrow-left mr-2"></i>返回</button>
+                    <h2 class="text-xl font-bold text-amber-500 serif-font"><i class="fas fa-trophy mr-2 text-amber-400"></i>無限挑戰排行榜</h2>
+                    <div class="w-20"></div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-4 sm:p-8">
+                    ${lb.length === 0 ? `
+                    <div class="flex flex-col items-center justify-center h-full text-slate-500 gap-4">
+                        <i class="fas fa-trophy text-6xl text-slate-700"></i>
+                        <p class="text-lg">尚無記錄，快去挑戰！</p>
+                        <button onclick="audioManager.playSFX('click'); state.screen='soloSetup'; render();" class="bg-gradient-to-r from-purple-700 to-indigo-700 text-white font-bold py-3 px-8 rounded-xl">開始挑戰</button>
+                    </div>` : `
+                    <div class="max-w-lg mx-auto space-y-2 pb-12">
+                        ${lb.map((entry,i) => `
+                        <div class="leaderboard-row flex items-center gap-4 bg-slate-800/80 border ${i===0?'border-yellow-500/50':i===1?'border-slate-500/50':i===2?'border-amber-800/50':'border-slate-700/30'} rounded-xl px-4 py-3 shadow hover:bg-slate-700/80 transition">
+                            <div class="lb-rank font-black text-xl w-8 text-center">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div>
+                            <div class="flex-1 min-w-0">
+                                <div class="font-bold text-white text-sm truncate">${entry.name}</div>
+                                <div class="text-slate-500 text-[10px]">${entry.date}</div>
+                            </div>
+                            <div class="text-right shrink-0">
+                                <div class="font-black text-white text-lg">${entry.cardsPlaced} <span class="text-slate-400 text-xs font-normal">張</span></div>
+                                <div class="text-slate-400 text-[11px]">${formatTime(entry.seconds)}</div>
+                            </div>
+                        </div>`).join('')}
+                        <div class="text-center mt-6">
+                            <button onclick="audioManager.playSFX('click'); state.screen='soloSetup'; render();" class="bg-gradient-to-r from-purple-700 to-indigo-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:scale-105 transition-transform text-sm"><i class="fas fa-infinity mr-2"></i>再次挑戰</button>
+                        </div>
+                    </div>`}
+                </div>
+            </div>
+            `;
+        };
+
+        const render = () => {
+            const app = document.getElementById('app');
+            if (state.screen === 'menu') app.innerHTML = renderMenu();
+            else if (state.screen === 'setup') app.innerHTML = renderSetup();
+            else if (state.screen === 'play') {
+                app.innerHTML = renderGameTable();
+                const scroll = document.getElementById('timelineContainer');
+                if (scroll) scroll.scrollLeft = (scroll.scrollWidth - scroll.clientWidth) / 2;
+            }
+            else if (state.screen === 'gameover') app.innerHTML = renderGameTable() + renderGameOver();
+            else if (state.screen === 'gallery') app.innerHTML = renderGallery();
+        };        const render = () => {
+            const app = document.getElementById('app');
+            if (state.screen === 'menu') app.innerHTML = renderMenu();
+            else if (state.screen === 'setup') app.innerHTML = renderSetup();
+            else if (state.screen === 'soloSetup') app.innerHTML = renderSoloSetup();
+            else if (state.screen === 'soloPlay') {
+                app.innerHTML = renderSoloPlay();
+                const scroll = document.getElementById('timelineContainer');
+                if(scroll) scroll.scrollLeft = (scroll.scrollWidth - scroll.clientWidth) / 2;
+            }
+            else if (state.screen === 'soloOver') app.innerHTML = renderSoloOver();
+            else if (state.screen === 'leaderboard') { audioManager.switchToLobbyBGM(); app.innerHTML = renderLeaderboard(); }
+            else if (state.screen === 'play') {
+                app.innerHTML = renderGameTable();
+                const scroll = document.getElementById('timelineContainer');
+                if (scroll) scroll.scrollLeft = (scroll.scrollWidth - scroll.clientWidth) / 2;
+            }
+            else if (state.screen === 'gameover') app.innerHTML = renderGameTable() + renderGameOver();
+            else if (state.screen === 'gallery') app.innerHTML = renderGallery();
+        };
+
+
+        window.onload = render;
+        window.addEventListener('resize', () => { if (state.screen === 'play' || state.screen === 'gameover') render(); });
+    </script>
+</body>
+</html>
