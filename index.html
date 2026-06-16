@@ -2519,7 +2519,7 @@
                         <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none" style="font-size:180px;color:rgba(245,158,11,0.06);">
                             <i class="fas fa-landmark"></i>
                         </div>
-                        <span class="relative z-10 bg-amber-600/80 border border-amber-400 text-white text-xs font-bold px-3 py-1 rounded-full tracking-widest shadow-md inline-block">設計：郭柏宏 老師　版本：20260616</span>
+                        <span class="relative z-10 bg-amber-600/80 border border-amber-400 text-white text-xs font-bold px-3 py-1 rounded-full tracking-widest shadow-md inline-block">設計者：郭柏宏 老師　　版本：20260607</span>
                         <h1 class="relative z-10 text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-amber-400 to-yellow-600 serif-font tracking-wider leading-tight text-center">台灣歷史<br>時間軸</h1>
                         <p class="relative z-10 text-slate-400 text-sm tracking-widest font-light">牌桌四角，一眼看破歷史長河</p>
                     </div>
@@ -5046,24 +5046,36 @@
         }
 
         async function champStartGame() {
+            // 普通建立房間（非戰情中心）：直接開始，不走樹狀賽程
             if (!champState.isHost) return;
-            const playerIds = Object.keys(champState.players);
+            const players = champState.players || {};
+            const playerIds = Object.keys(players).filter(id => !id.startsWith('warroom_'));
             if (playerIds.length < 2) return alert('至少需要2位玩家！');
-            const bracket = champGenerateBracket(playerIds, 1);
-            const bracketObj = bracket.reduce((acc, m) => { acc[m.matchId] = m; return acc; }, {});
-            champState.bracket = bracketObj;
             const db = window.firebaseDB;
-            // Step 1: push bracket with grouped status so all clients see the bracket tree
+
+            // 建立一個單組 bracket，包含所有玩家
+            const matchId = 'r1_m0';
+            const matchPlayers = playerIds.reduce((acc, pid) => {
+                acc[pid] = { name: players[pid]?.name || pid, status: 'waiting' };
+                return acc;
+            }, {});
+            const bracketObj = {
+                [matchId]: { matchId, players: matchPlayers, status: 'playing', winner: null }
+            };
+            champState.bracket = bracketObj;
+            champState.currentMatchId = matchId;
+
+            // 寫入 Firebase，直接設定 playing + match_start = true
+            // 讓所有客戶端的 champListenRoom 偵測到後直接進入遊戲
             await window.firebaseUpdate(window.firebaseRef(db, `rooms/${champState.roomCode}`), {
-                status: 'grouped',
+                status: 'playing',
                 bracket: bracketObj,
                 round: 1,
-                brackets_revealed: true,
-                match_start: false
+                brackets_revealed: false,
+                match_start: true,
+                match_start_time: Date.now()
             });
             audioManager.playSFX('win');
-            state.screen = 'champBracketTree';
-            render();
         }
 
         // ── 賽程表 ──
