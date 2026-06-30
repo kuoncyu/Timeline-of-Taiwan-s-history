@@ -2656,7 +2656,8 @@
                                 <button onclick="audioManager.playSFX('click'); state.screen='ultimateSetup'; render();" class="lobby-btn text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all text-sm flex justify-center items-center gap-2 col-span-2" style="background:linear-gradient(135deg,#7f1d1d 0%,#431407 50%,#1c0a03 100%);border:1px solid rgba(239,68,68,0.4);"><i class="fas fa-skull-crossbones text-base text-red-400"></i> 究極挑戰 <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded ml-1 text-red-200">對決厲始魔王</span></button>
                                 <button onclick="audioManager.playSFX('click'); state.screen='leaderboard'; render();" class="bg-slate-900/80 hover:bg-slate-800 text-amber-400 font-bold py-4 px-6 rounded-xl shadow-md transition-all lobby-btn text-sm flex justify-center items-center gap-2 border border-amber-900/50"><i class="fas fa-trophy text-base text-amber-500"></i> 無限排行榜</button>
                                 <button onclick="audioManager.playSFX('click'); state.screen='ultimateLeaderboard'; render();" class="lobby-btn font-bold py-4 px-6 rounded-xl shadow-md transition-all text-sm flex justify-center items-center gap-2" style="background:rgba(26,5,5,0.8);border:1px solid rgba(127,29,29,0.6);color:#f87171;"><i class="fas fa-skull-crossbones text-base" style="color:#ef4444;"></i> 究極排行榜</button>
-                                <button onclick="audioManager.playSFX('click'); state.screen='champMenu'; render();" class="champ-btn lobby-btn text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all text-sm flex justify-center items-center gap-2 col-span-2 champion-glow" style="background:linear-gradient(135deg,#78350f 0%,#92400e 40%,#b45309 100%);border:1px solid rgba(251,191,36,0.5);"><i class="fas fa-crown text-base text-yellow-300"></i> 冠軍爭霸戰 <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded ml-1 text-yellow-200">連線對戰</span></button>
+                                <button onclick="audioManager.playSFX('click'); state.screen='champMenu'; render();" class="champ-btn lobby-btn text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all text-sm flex justify-center items-center gap-2 champion-glow" style="background:linear-gradient(135deg,#78350f 0%,#92400e 40%,#b45309 100%);border:1px solid rgba(251,191,36,0.5);"><i class="fas fa-crown text-base text-yellow-300"></i> 冠軍爭霸戰</button>
+                                <button onclick="audioManager.playSFX('click'); state.screen='mpMenu'; render();" class="lobby-btn text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all text-sm flex justify-center items-center gap-2" style="background:linear-gradient(135deg,#1e3a8a 0%,#1e1b4b 50%,#0f172a 100%);border:1px solid rgba(99,102,241,0.5);"><i class="fas fa-wifi text-base text-indigo-300"></i> 多人連線對戰 <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded ml-1 text-indigo-200">連線對戰</span></button>
                             </div>
                         </div>
                     </div>
@@ -2665,7 +2666,7 @@
                 <!-- 直向佈局：index(13) 版本 -->
                 <div class="glass-panel p-8 sm:p-12 rounded-3xl max-w-xl w-full animate-scale-up border-t border-l border-amber-500/20 shadow-2xl relative overflow-hidden">
                     <div class="absolute -top-10 -right-10 text-[150px] text-amber-500/5 rotate-12 pointer-events-none"><i class="fas fa-landmark"></i></div>
-                    <span class="bg-amber-600/80 border border-amber-400 text-white text-[10px] font-bold px-3 py-1 rounded-full tracking-widest shadow-md mb-4 inline-block">設計者：郭柏宏 老師　　版本：20260607</span>
+                    <span class="bg-amber-600/80 border border-amber-400 text-white text-[10px] font-bold px-3 py-1 rounded-full tracking-widest shadow-md mb-4 inline-block">設計者：郭柏宏 老師　　版本：20260630</span>
                     <h1 class="text-4xl sm:text-6xl font-black mb-3 text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-amber-400 to-yellow-600 serif-font tracking-wider py-1">台灣歷史時間軸</h1>
                     <p class="text-slate-300 mb-8 text-sm tracking-widest font-light">牌桌四角，一眼看破歷史長河</p>
                     <div class="space-y-4 max-w-xs mx-auto relative z-10">
@@ -2676,7 +2677,8 @@
                         <button onclick="audioManager.playSFX('click'); state.screen='ultimateSetup'; render();" class="w-full lobby-btn text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-all text-sm flex justify-center items-center gap-2" style="background:linear-gradient(135deg,#7f1d1d 0%,#431407 50%,#1c0a03 100%);border:1px solid rgba(239,68,68,0.4);"><i class="fas fa-skull-crossbones text-base text-red-400"></i> 究極挑戰 <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded ml-1 text-red-200">對決厲始魔王</span></button>
                         <button onclick="audioManager.playSFX('click'); state.screen='leaderboard'; render();" class="w-full bg-slate-900/80 hover:bg-slate-800 text-amber-400 font-bold py-3 px-6 rounded-xl shadow-md transition-all lobby-btn text-sm flex justify-center items-center gap-2 border border-amber-900/50"><i class="fas fa-trophy text-base text-amber-500"></i> 無限挑戰排行榜</button>
                         <button onclick="audioManager.playSFX('click'); state.screen='ultimateLeaderboard'; render();" class="w-full lobby-btn font-bold py-3 px-6 rounded-xl shadow-md transition-all text-sm flex justify-center items-center gap-2" style="background:rgba(26,5,5,0.8);border:1px solid rgba(127,29,29,0.6);color:#f87171;"><i class="fas fa-skull-crossbones text-base" style="color:#ef4444;"></i> 究極挑戰排行榜</button>
-                        <button onclick="audioManager.playSFX('click'); state.screen='champMenu'; render();" class="w-full champ-btn lobby-btn text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-all text-sm flex justify-center items-center gap-2 champion-glow" style="background:linear-gradient(135deg,#78350f 0%,#92400e 40%,#b45309 100%);border:1px solid rgba(251,191,36,0.5);"><i class="fas fa-crown text-base text-yellow-300"></i> 冠軍爭霸戰 <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded ml-1 text-yellow-200">連線對戰</span></button>
+                        <button onclick="audioManager.playSFX('click'); state.screen='champMenu'; render();" class="w-full champ-btn lobby-btn text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-all text-sm flex justify-center items-center gap-2 champion-glow" style="background:linear-gradient(135deg,#78350f 0%,#92400e 40%,#b45309 100%);border:1px solid rgba(251,191,36,0.5);"><i class="fas fa-crown text-base text-yellow-300"></i> 冠軍爭霸戰</button>
+                        <button onclick="audioManager.playSFX('click'); state.screen='mpMenu'; render();" class="w-full lobby-btn text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-all text-sm flex justify-center items-center gap-2" style="background:linear-gradient(135deg,#1e3a8a 0%,#1e1b4b 50%,#0f172a 100%);border:1px solid rgba(99,102,241,0.5);"><i class="fas fa-wifi text-base text-indigo-300"></i> 多人連線對戰 <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded ml-1 text-indigo-200">連線對戰</span></button>
                     </div>
                 </div>`}
             </div>
@@ -2730,7 +2732,10 @@
                 iAmChampWinner = entry && entry[0] === myFirebasePid;
             }
 
-            const champWinnerBtn = iAmChampWinner
+            const champWinnerBtn = champState.isSimpleRoom
+                ? `<button onclick="champExitSimpleRoom();"
+                        class="modal-btn w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold rounded-xl shadow-lg tracking-widest">返回主選單</button>`
+                : iAmChampWinner
                 ? `<button onclick="audioManager.playSFX('click'); champState._isInWaitingZone=true; state.screen='champBracketTree'; document.getElementById('game-header').classList.add('hidden'); render();"
                         class="modal-btn w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg tracking-widest">
                     <i class="fas fa-hourglass-half mr-2"></i>進入晉級等待區</button>`
@@ -4673,6 +4678,7 @@
             playerId: null,
             isHost: false,
             isWarRoom: false,
+            isSimpleRoom: false,
             players: {},
             settings: { periods: ['qing','japanese','modern'], difficulty: 2 },
             bracket: null,
@@ -4751,6 +4757,26 @@
             setTimeout(() => banner.remove(), 3500);
         }
 
+        // ── 隨機暱稱產生器（台灣歷史主題：年代＋身份）──
+        const RANDOM_NAME_ERA = ['清代','日治','民國','荷治','明鄭','原民','戰後','當代'];
+        const RANDOM_NAME_ROLE = ['考古學者','歷史學家','文物商人','茶葉商賈','抗日志士','維新義士','通譯官員','糖廠技師','布政官員','私塾先生','洋行買辦','蕃地通事','鹽務委員','海關稅吏','測量技師','製糖工匠','船政官員','編修史官','拓墾移民','總督府吏'];
+        function generateRandomNickname() {
+            const era = RANDOM_NAME_ERA[Math.floor(Math.random() * RANDOM_NAME_ERA.length)];
+            const role = RANDOM_NAME_ROLE[Math.floor(Math.random() * RANDOM_NAME_ROLE.length)];
+            const num = Math.floor(Math.random() * 90 + 10); // 10~99
+            return `${era}${role}${num}`;
+        }
+        // 將隨機暱稱填入指定輸入框，並同步更新對應的暫存變數
+        function champFillRandomName(inputId) {
+            const name = generateRandomNickname();
+            const el = document.getElementById(inputId);
+            if (el) el.value = name;
+            if (inputId === 'champ-create-name') champNameInput = name;
+            else if (inputId === 'champ-join-name') champJoinName = name;
+            else if (inputId === 'wr-name') warRoomNameInput = name;
+            audioManager.playSFX('click');
+        }
+
         // 取消所有Firebase監聽
         function champUnsubscribeAll() {
             champState.unsubscribes.forEach(fn => { try { fn(); } catch(e){} });
@@ -4786,26 +4812,80 @@
             render();
         }
 
-        // ── 主選單 ──
+        // 結束簡易連線對戰房間（非戰情中心賽程），清理房間並返回主選單
+        function champExitSimpleRoom() {
+            champUnsubscribeAll();
+            if (champState.roomCode && window.firebaseReady) {
+                const db = window.firebaseDB;
+                if (champState.isHost) {
+                    // 房主離開：整個房間一併移除
+                    window.firebaseRemove(window.firebaseRef(db, `rooms/${champState.roomCode}`));
+                } else if (champState.playerId) {
+                    window.firebaseRemove(window.firebaseRef(db, `rooms/${champState.roomCode}/players/${champState.playerId}`));
+                }
+            }
+            champState.roomCode = null;
+            champState.playerName = null;
+            champState.isHost = false;
+            champState.isSimpleRoom = false;
+            champState.players = {};
+            champState.bracket = null;
+            champState.currentMatchId = null;
+            champState.matchWinners = {};
+            champState.roundNum = 1;
+            champState.inChampGame = false;
+            champState.isChampGameHost = false;
+            champState.myGamePlayerIndex = -1;
+            champState._matchResultShown = false;
+            if (champState.gameUnsub) { try { champState.gameUnsub(); } catch(e){} champState.gameUnsub = null; }
+            audioManager.playSFX('click');
+            audioManager.switchToLobbyBGM();
+            state.screen = 'menu';
+            document.getElementById('game-header').classList.add('hidden');
+            render();
+        }
+
+        // ── 冠軍爭霸戰／連線對戰：記住進入房間流程前的選單，供返回鍵使用 ──
+        let champPrevScreen = 'champMenu';
+
+        // ── 冠軍爭霸戰主選單（戰情中心管理賽程／加入已開設的比賽）──
         const renderChampMenu = () => `
             <div class="absolute inset-0 flex flex-col items-center justify-center p-6 lobby-bg">
                 <button onclick="audioManager.playSFX('click'); state.screen='menu'; render();" class="absolute top-4 left-4 z-20 text-slate-400 hover:text-amber-400 transition text-sm"><i class="fas fa-arrow-left mr-1"></i> 返回主選單</button>
                 <div class="glass-panel p-8 rounded-2xl w-full max-w-md animate-scale-up border border-amber-500/30 text-center">
                     <div class="text-5xl mb-3">🏆</div>
                     <h2 class="text-2xl font-black text-yellow-400 serif-font mb-1">冠軍爭霸戰</h2>
-                    <p class="text-slate-400 text-xs mb-6 tracking-widest">連線多人對戰．決出唯一冠軍</p>
+                    <p class="text-slate-400 text-xs mb-6 tracking-widest">多組賽程．晉級淘汰．決出唯一冠軍</p>
                     <div class="space-y-3">
-                        <button onclick="audioManager.playSFX('click'); state.screen='champCreate'; render();" class="w-full champ-btn text-white font-bold py-4 px-6 rounded-xl shadow-lg text-sm flex justify-center items-center gap-3" style="background:linear-gradient(135deg,#065f46,#022c22);border:1px solid rgba(16,185,129,0.4);">
-                            <i class="fas fa-plus-circle text-emerald-400 text-lg"></i>
-                            <div class="text-left"><div class="font-bold">建立房間</div><div class="text-[11px] text-emerald-300/70 font-normal">成為房主，設定題目並邀請玩家</div></div>
-                        </button>
-                        <button onclick="audioManager.playSFX('click'); state.screen='champJoin'; render();" class="w-full champ-btn text-white font-bold py-4 px-6 rounded-xl shadow-lg text-sm flex justify-center items-center gap-3" style="background:linear-gradient(135deg,#1e3a8a,#1e1b4b);border:1px solid rgba(99,102,241,0.4);">
-                            <i class="fas fa-door-open text-indigo-400 text-lg"></i>
-                            <div class="text-left"><div class="font-bold">加入房間</div><div class="text-[11px] text-indigo-300/70 font-normal">輸入四位數房號加入對戰</div></div>
-                        </button>
                         <button onclick="audioManager.playSFX('click'); champEnterWarRoom();" class="w-full champ-btn text-white font-bold py-4 px-6 rounded-xl shadow-lg text-sm flex justify-center items-center gap-3" style="background:linear-gradient(135deg,#78350f,#451a03);border:1px solid rgba(251,191,36,0.4);">
                             <i class="fas fa-chess-king text-yellow-400 text-lg"></i>
                             <div class="text-left"><div class="font-bold">戰情中心</div><div class="text-[11px] text-yellow-300/70 font-normal">主控台．賽程管理．需要密碼</div></div>
+                        </button>
+                        <button onclick="audioManager.playSFX('click'); champPrevScreen='champMenu'; state.screen='champJoin'; render();" class="w-full champ-btn text-white font-bold py-4 px-6 rounded-xl shadow-lg text-sm flex justify-center items-center gap-3" style="background:linear-gradient(135deg,#1e3a8a,#1e1b4b);border:1px solid rgba(99,102,241,0.4);">
+                            <i class="fas fa-door-open text-indigo-400 text-lg"></i>
+                            <div class="text-left"><div class="font-bold">加入遊戲</div><div class="text-[11px] text-indigo-300/70 font-normal">輸入四位數房號加入比賽</div></div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // ── 多人連線對戰主選單（自由建房／加入，不經過戰情中心賽程）──
+        const renderMpMenu = () => `
+            <div class="absolute inset-0 flex flex-col items-center justify-center p-6 lobby-bg">
+                <button onclick="audioManager.playSFX('click'); state.screen='menu'; render();" class="absolute top-4 left-4 z-20 text-slate-400 hover:text-amber-400 transition text-sm"><i class="fas fa-arrow-left mr-1"></i> 返回主選單</button>
+                <div class="glass-panel p-8 rounded-2xl w-full max-w-md animate-scale-up border border-indigo-500/30 text-center">
+                    <div class="text-5xl mb-3">🌐</div>
+                    <h2 class="text-2xl font-black text-indigo-300 serif-font mb-1">多人連線對戰</h2>
+                    <p class="text-slate-400 text-xs mb-6 tracking-widest">線上即時對戰．不限地點同場較量</p>
+                    <div class="space-y-3">
+                        <button onclick="audioManager.playSFX('click'); champPrevScreen='mpMenu'; state.screen='champCreate'; render();" class="w-full champ-btn text-white font-bold py-4 px-6 rounded-xl shadow-lg text-sm flex justify-center items-center gap-3" style="background:linear-gradient(135deg,#065f46,#022c22);border:1px solid rgba(16,185,129,0.4);">
+                            <i class="fas fa-plus-circle text-emerald-400 text-lg"></i>
+                            <div class="text-left"><div class="font-bold">建立房間</div><div class="text-[11px] text-emerald-300/70 font-normal">成為房主，設定題目並邀請玩家</div></div>
+                        </button>
+                        <button onclick="audioManager.playSFX('click'); champPrevScreen='mpMenu'; state.screen='champJoin'; render();" class="w-full champ-btn text-white font-bold py-4 px-6 rounded-xl shadow-lg text-sm flex justify-center items-center gap-3" style="background:linear-gradient(135deg,#1e3a8a,#1e1b4b);border:1px solid rgba(99,102,241,0.4);">
+                            <i class="fas fa-door-open text-indigo-400 text-lg"></i>
+                            <div class="text-left"><div class="font-bold">加入遊戲</div><div class="text-[11px] text-indigo-300/70 font-normal">輸入四位數房號加入對戰</div></div>
                         </button>
                     </div>
                 </div>
@@ -4875,15 +4955,18 @@
         let champNameInput = '';
         const renderChampCreate = () => `
             <div class="absolute inset-0 flex flex-col items-center justify-center p-6 lobby-bg">
-                <button onclick="audioManager.playSFX('click'); state.screen='champMenu'; render();" class="absolute top-4 left-4 z-20 text-slate-400 hover:text-amber-400 transition text-sm"><i class="fas fa-arrow-left mr-1"></i> 返回</button>
+                <button onclick="audioManager.playSFX('click'); state.screen=champPrevScreen; render();" class="absolute top-4 left-4 z-20 text-slate-400 hover:text-amber-400 transition text-sm"><i class="fas fa-arrow-left mr-1"></i> 返回</button>
                 <div class="glass-panel p-6 rounded-2xl w-full max-w-sm animate-scale-up border border-emerald-500/30">
                     <h3 class="text-lg font-black text-emerald-400 serif-font mb-4 text-center"><i class="fas fa-plus-circle mr-2"></i>建立房間</h3>
                     <div class="space-y-3">
                         <div>
                             <label class="text-xs text-amber-400 font-bold mb-1 block">你的名稱</label>
-                            <input id="champ-create-name" type="text" maxlength="8" placeholder="請輸入名稱（最多8字）"
-                                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-emerald-500 focus:outline-none"
-                                value="${champNameInput}" oninput="champNameInput=this.value"/>
+                            <div class="flex gap-2">
+                                <input id="champ-create-name" type="text" maxlength="8" placeholder="請輸入名稱（最多8字）"
+                                    class="flex-1 min-w-0 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-emerald-500 focus:outline-none"
+                                    value="${champNameInput}" oninput="champNameInput=this.value"/>
+                                <button type="button" onclick="champFillRandomName('champ-create-name')" title="隨機取名" class="shrink-0 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-amber-400 rounded-lg px-3 text-sm transition"><i class="fas fa-dice"></i></button>
+                            </div>
                         </div>
                         <div>
                             <label class="text-xs text-amber-400 font-bold mb-1 block"><i class="fas fa-layer-group mr-1"></i>考驗難度</label>
@@ -4923,12 +5006,14 @@
             champState.playerName = name;
             champState.playerId = pid;
             champState.isHost = true;
+            champState.isSimpleRoom = true;
             champState.settings = { periods, difficulty: diff };
 
             const db = window.firebaseDB;
             await window.firebaseSet(window.firebaseRef(db, `rooms/${code}`), {
                 host: pid,
                 status: 'waiting',
+                simpleRoom: true,
                 settings: { periods, difficulty: diff },
                 createdAt: Date.now(),
                 players: {
@@ -4945,15 +5030,18 @@
         let champJoinName = '';
         const renderChampJoin = () => `
             <div class="absolute inset-0 flex flex-col items-center justify-center p-6 lobby-bg">
-                <button onclick="audioManager.playSFX('click'); state.screen='champMenu'; render();" class="absolute top-4 left-4 z-20 text-slate-400 hover:text-amber-400 transition text-sm"><i class="fas fa-arrow-left mr-1"></i> 返回</button>
+                <button onclick="audioManager.playSFX('click'); state.screen=champPrevScreen; render();" class="absolute top-4 left-4 z-20 text-slate-400 hover:text-amber-400 transition text-sm"><i class="fas fa-arrow-left mr-1"></i> 返回</button>
                 <div class="glass-panel p-6 rounded-2xl w-full max-w-sm animate-scale-up border border-indigo-500/30">
                     <h3 class="text-lg font-black text-indigo-400 serif-font mb-4 text-center"><i class="fas fa-door-open mr-2"></i>加入房間</h3>
                     <div class="space-y-3">
                         <div>
                             <label class="text-xs text-amber-400 font-bold mb-1 block">你的名稱</label>
-                            <input id="champ-join-name" type="text" maxlength="8" placeholder="請輸入名稱（最多8字）"
-                                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-indigo-500 focus:outline-none"
-                                value="${champJoinName}" oninput="champJoinName=this.value"/>
+                            <div class="flex gap-2">
+                                <input id="champ-join-name" type="text" maxlength="8" placeholder="請輸入名稱（最多8字）"
+                                    class="flex-1 min-w-0 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-indigo-500 focus:outline-none"
+                                    value="${champJoinName}" oninput="champJoinName=this.value"/>
+                                <button type="button" onclick="champFillRandomName('champ-join-name')" title="隨機取名" class="shrink-0 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-amber-400 rounded-lg px-3 text-sm transition"><i class="fas fa-dice"></i></button>
+                            </div>
                         </div>
                         <div>
                             <label class="text-xs text-amber-400 font-bold mb-1 block">四位數房號</label>
@@ -4989,6 +5077,7 @@
             champState.playerName = name;
             champState.playerId = pid;
             champState.isHost = false;
+            champState.isSimpleRoom = !!roomData.simpleRoom;
             champState.settings = roomData.settings || { periods: ['qing','japanese','modern'], difficulty: 2 };
 
             await window.firebaseSet(window.firebaseRef(db, `rooms/${code}/players/${pid}`), {
@@ -5171,21 +5260,29 @@
             if (!champState.isHost) return;
             const playerIds = Object.keys(champState.players);
             if (playerIds.length < 2) return alert('至少需要2位玩家！');
-            const bracket = champGenerateBracket(playerIds, 1);
-            const bracketObj = bracket.reduce((acc, m) => { acc[m.matchId] = m; return acc; }, {});
+            // 連線對戰：所有玩家直接編入同一場比賽，無需分組／戰情中心
+            const matchId = 'match1';
+            const bracketObj = {
+                [matchId]: {
+                    matchId,
+                    players: playerIds.reduce((acc, pid) => {
+                        acc[pid] = { name: champState.players[pid]?.name || pid, status: 'waiting' };
+                        return acc;
+                    }, {}),
+                    status: 'playing',
+                    winner: null
+                }
+            };
             champState.bracket = bracketObj;
             const db = window.firebaseDB;
-            // Step 1: push bracket with grouped status so all clients see the bracket tree
             await window.firebaseUpdate(window.firebaseRef(db, `rooms/${champState.roomCode}`), {
-                status: 'grouped',
+                status: 'playing',
                 bracket: bracketObj,
                 round: 1,
-                brackets_revealed: true,
-                match_start: false
+                match_start: true
             });
             audioManager.playSFX('win');
-            state.screen = 'champBracketTree';
-            render();
+            // 不導向賽程樹：champListenRoom 偵測到 status==='playing' && match_start 會自動帶入對局
         }
 
         // ── 賽程表 ──
@@ -5211,23 +5308,25 @@
                 // 比賽結束：依贏輸顯示不同訊息，並在延遲後自動導向賽程樹狀圖
                 if (match.status === 'done' && match.winner && !champState._matchResultShown) {
                     champState._matchResultShown = true;
-                    const isWinner = match.winner === champState.playerId;
-                    const winnerName = (match.players && match.players[match.winner] && match.players[match.winner].name) || match.winner;
-                    if (isWinner) {
-                        showAdvanceBanner(winnerName); // 顯示「晉級」banner
-                        champState._isInWaitingZone = true;
-                    } else {
-                        showEliminatedBanner(winnerName);
-                        champState._isInWaitingZone = false;
-                    }
-                    // 若玩家不在 gameover 畫面（例如已提前跳走），才自動導回賽程樹狀圖
-                    setTimeout(() => {
-                        champState._matchResultShown = false;
-                        if (state.screen !== 'gameover') {
-                            state.screen = 'champBracketTree';
-                            render();
+                    if (!champState.isSimpleRoom) {
+                        const isWinner = match.winner === champState.playerId;
+                        const winnerName = (match.players && match.players[match.winner] && match.players[match.winner].name) || match.winner;
+                        if (isWinner) {
+                            showAdvanceBanner(winnerName); // 顯示「晉級」banner
+                            champState._isInWaitingZone = true;
+                        } else {
+                            showEliminatedBanner(winnerName);
+                            champState._isInWaitingZone = false;
                         }
-                    }, 4000);
+                        // 若玩家不在 gameover 畫面（例如已提前跳走），才自動導回賽程樹狀圖
+                        setTimeout(() => {
+                            champState._matchResultShown = false;
+                            if (state.screen !== 'gameover') {
+                                state.screen = 'champBracketTree';
+                                render();
+                            }
+                        }, 4000);
+                    }
                 }
                 if (state.screen === 'champBracket' || state.screen === 'champObserve') render();
             });
@@ -6228,7 +6327,7 @@
         const render = () => {
             const app = document.getElementById('app');
             const header = document.getElementById('game-header');
-            const noHeaderScreens = ['menu', 'setup', 'soloSetup', 'ultimateSetup', 'gallery', 'leaderboard', 'ultimateLeaderboard', 'soloOver', 'ultimateOver', 'champMenu', 'champCreate', 'champJoin', 'champRoom', 'champLobby', 'champWarRoom', 'champWarRoomSetup', 'champWarRoomLobby', 'champBracket', 'champBracketTree', 'champObserve'];
+            const noHeaderScreens = ['menu', 'setup', 'soloSetup', 'ultimateSetup', 'gallery', 'leaderboard', 'ultimateLeaderboard', 'soloOver', 'ultimateOver', 'champMenu', 'mpMenu', 'champCreate', 'champJoin', 'champRoom', 'champLobby', 'champWarRoom', 'champWarRoomSetup', 'champWarRoomLobby', 'champBracket', 'champBracketTree', 'champObserve'];
             if (noHeaderScreens.includes(state.screen)) {
                 header.classList.add('hidden');
             } else {
@@ -6266,6 +6365,7 @@
             else if (state.screen === 'ultimatePlay') app.innerHTML = renderUltimatePlay();
             else if (state.screen === 'ultimateOver') app.innerHTML = renderUltimateOver();
             else if (state.screen === 'champMenu') app.innerHTML = renderChampMenu();
+            else if (state.screen === 'mpMenu') app.innerHTML = renderMpMenu();
             else if (state.screen === 'champCreate') app.innerHTML = renderChampCreate();
             else if (state.screen === 'champJoin') app.innerHTML = renderChampJoin();
             else if (state.screen === 'champRoom') app.innerHTML = renderChampRoom();
