@@ -1997,7 +1997,26 @@
                 clearInterval(state.extremeCountdownInterval);
                 state.extremeCountdownInterval = null;
             }
-            if (state.players[state.currentPlayerIndex].isAI) { render(); setTimeout(executeAITurn, 1800); }
+            if (state.players[state.currentPlayerIndex].isAI) {
+                render();
+                if (champState.inChampGame) {
+                    // 連線對戰：只由場上 0 號玩家（負責初始化對局者）代為執行電腦回合，並同步至 Firebase
+                    if (champState.myGamePlayerIndex === 0) {
+                        champState.isWriting = true;
+                        setTimeout(() => {
+                            executeAITurn();
+                            // executeAITurn 內部約 1000ms 後出牌，handleGapClick 再等 2000ms 才呼叫 endTurn
+                            setTimeout(async () => {
+                                await champSyncGameState();
+                                champState.isWriting = false;
+                            }, 3200);
+                        }, 1800);
+                    }
+                    // 其他連線玩家僅被動接收 Firebase 上的最新狀態，不重複執行電腦邏輯
+                } else {
+                    setTimeout(executeAITurn, 1800);
+                }
+            }
             else {
                 render();
                 // 極限殊死對戰：啟動 5 秒倒數
@@ -2641,7 +2660,7 @@
                         <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none" style="font-size:180px;color:rgba(245,158,11,0.06);">
                             <i class="fas fa-landmark"></i>
                         </div>
-                        <span class="relative z-10 bg-amber-600/80 border border-amber-400 text-white text-xs font-bold px-3 py-1 rounded-full tracking-widest shadow-md inline-block">設計者：郭柏宏 老師　　版本：20260607</span>
+                        <span class="relative z-10 bg-amber-600/80 border border-amber-400 text-white text-xs font-bold px-3 py-1 rounded-full tracking-widest shadow-md inline-block">設計者：郭柏宏 老師　　版本：20260630</span>
                         <h1 class="relative z-10 text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-amber-400 to-yellow-600 serif-font tracking-wider leading-tight text-center">台灣歷史<br>時間軸</h1>
                         <p class="relative z-10 text-slate-400 text-sm tracking-widest font-light">牌桌四角，一眼看破歷史長河</p>
                     </div>
@@ -4679,6 +4698,7 @@
             isHost: false,
             isWarRoom: false,
             isSimpleRoom: false,
+            aiCount: 0,      // 連線房間中房主加入的電腦人數
             players: {},
             settings: { periods: ['qing','japanese','modern'], difficulty: 2 },
             bracket: null,
@@ -4982,6 +5002,16 @@
                                 ${ALL_PERIODS.map(p => `<label class="flex items-center gap-2 bg-slate-800/60 p-1.5 rounded cursor-pointer border border-slate-700/50 text-xs"><input type="checkbox" value="${p.id}" class="champ-period-cb h-3 w-3 text-amber-500" ${['qing','japanese','modern'].includes(p.id)?'checked':''}><span class="text-slate-200">${p.name}</span></label>`).join('')}
                             </div>
                         </div>
+                        <div>
+                            <label class="text-xs text-amber-400 font-bold mb-1 block"><i class="fas fa-robot mr-1"></i>加入電腦玩家</label>
+                            <select id="champ-create-ai" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm">
+                                <option value="0" selected>不加入電腦</option>
+                                <option value="1">1 位電腦</option>
+                                <option value="2">2 位電腦</option>
+                                <option value="3">3 位電腦</option>
+                            </select>
+                            <div class="text-slate-500 text-[10px] mt-1">連線對戰最多 4 人（含電腦），電腦會自動補滿剩餘名額</div>
+                        </div>
                         <button onclick="champCreateRoom()" class="w-full champ-btn text-white font-bold py-3 rounded-xl text-sm mt-2" style="background:linear-gradient(135deg,#065f46,#022c22);border:1px solid rgba(16,185,129,0.4);">
                             <i class="fas fa-play mr-2"></i>建立並取得房號
                         </button>
@@ -5000,6 +5030,11 @@
             if (!periods.length) return alert('請至少選一個時代！');
             if (!window.firebaseReady) return alert('連線中，請稍後再試');
 
+            const aiEl = document.getElementById('champ-create-ai');
+            let aiCount = aiEl ? parseInt(aiEl.value) || 0 : 0;
+            if (aiCount > 3) aiCount = 3; // 連線對戰最多4人（含電腦），房主自己至少佔1個名額
+            if (aiCount < 0) aiCount = 0;
+
             const code = generateRoomCode();
             const pid = generatePlayerId();
             champState.roomCode = code;
@@ -5008,6 +5043,7 @@
             champState.isHost = true;
             champState.isSimpleRoom = true;
             champState.settings = { periods, difficulty: diff };
+            champState.aiCount = aiCount;
 
             const db = window.firebaseDB;
             await window.firebaseSet(window.firebaseRef(db, `rooms/${code}`), {
@@ -5015,6 +5051,7 @@
                 status: 'waiting',
                 simpleRoom: true,
                 settings: { periods, difficulty: diff },
+                aiCount,
                 createdAt: Date.now(),
                 players: {
                     [pid]: { name, ready: false, isHost: true, joinedAt: Date.now() }
@@ -5072,6 +5109,12 @@
             const roomData = roomSnap.val();
             if (roomData.status === 'playing') return alert('比賽已開始，無法加入！');
 
+            const roomAiCount = roomData.aiCount || 0;
+            const humanCount = Object.keys(roomData.players || {}).length;
+            if (!!roomData.simpleRoom && humanCount + roomAiCount >= 4) {
+                return alert('房間已滿（連線對戰最多4人，含電腦）！');
+            }
+
             const pid = generatePlayerId();
             champState.roomCode = code;
             champState.playerName = name;
@@ -5079,6 +5122,7 @@
             champState.isHost = false;
             champState.isSimpleRoom = !!roomData.simpleRoom;
             champState.settings = roomData.settings || { periods: ['qing','japanese','modern'], difficulty: 2 };
+            champState.aiCount = roomAiCount;
 
             await window.firebaseSet(window.firebaseRef(db, `rooms/${code}/players/${pid}`), {
                 name, ready: false, isHost: false, joinedAt: Date.now()
@@ -5127,6 +5171,7 @@
 
                 champState.players = data.players || {};
                 champState.settings = data.settings || champState.settings;
+                champState.aiCount = data.aiCount || 0;
                 champState.roundNum = data.round || champState.roundNum;
 
                 // Step 1: bracket revealed (grouped) → show tree to players
@@ -5162,7 +5207,9 @@
         const renderChampRoom = () => {
             const players = champState.players || {};
             const playerList = Object.entries(players);
-            const allReady = playerList.length >= 2 && playerList.every(([id, p]) => p.ready || p.isHost);
+            const aiCount = champState.isSimpleRoom ? (champState.aiCount || 0) : 0;
+            const totalCount = playerList.length + aiCount;
+            const allReady = totalCount >= 2 && playerList.every(([id, p]) => p.ready || p.isHost);
             const myPlayer = players[champState.playerId];
             const isReady = myPlayer && myPlayer.ready;
             const isHost = champState.isHost;
@@ -5178,10 +5225,11 @@
                     <div class="bg-black/30 rounded-xl p-3 mb-3 border border-white/5">
                         <div class="text-amber-400 text-xs font-bold mb-2"><i class="fas fa-cog mr-1"></i>比賽設定</div>
                         <div class="text-slate-300 text-xs">難度：${['','簡易','中等','極難'][champState.settings.difficulty||2]} ／ 時代：${(champState.settings.periods||[]).map(p=>ALL_PERIODS.find(x=>x.id===p)?.name||p).join('、')}</div>
+                        ${champState.isSimpleRoom ? `<div class="text-slate-300 text-xs mt-1"><i class="fas fa-robot mr-1 text-blue-300"></i>電腦玩家：${aiCount} 位</div>` : ''}
                         ${isHost ? `<button onclick="state.screen='champCreate'; render();" class="text-amber-400 text-[11px] mt-1 hover:underline"><i class="fas fa-edit mr-1"></i>修改設定</button>` : ''}
                     </div>
                     <div class="bg-black/30 rounded-xl p-3 mb-4 border border-white/5">
-                        <div class="text-amber-400 text-xs font-bold mb-2"><i class="fas fa-users mr-1"></i>玩家列表 (${playerList.length}人)</div>
+                        <div class="text-amber-400 text-xs font-bold mb-2"><i class="fas fa-users mr-1"></i>玩家列表 (${totalCount}/4人)</div>
                         <div class="space-y-1.5 max-h-40 overflow-y-auto">
                             ${playerList.map(([id, p]) => `
                             <div class="flex items-center justify-between bg-slate-800/50 rounded-lg px-3 py-1.5">
@@ -5190,6 +5238,14 @@
                                     <span class="font-bold text-white text-sm">${p.name}${id===champState.playerId?'（你）':''}</span>
                                 </div>
                                 <span class="text-xs font-bold ${p.ready||p.isHost ? 'text-emerald-400' : 'text-slate-500'}">${p.isHost ? '房主' : p.ready ? '✓ 準備好了' : '等待中...'}</span>
+                            </div>`).join('')}
+                            ${Array.from({length: aiCount}).map((_, i) => `
+                            <div class="flex items-center justify-between bg-slate-800/30 rounded-lg px-3 py-1.5 border border-blue-500/20">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm">🤖</span>
+                                    <span class="font-bold text-blue-300 text-sm">電腦 ${i + 1}</span>
+                                </div>
+                                <span class="text-xs font-bold text-blue-400">已就緒</span>
                             </div>`).join('')}
                         </div>
                     </div>
@@ -5259,16 +5315,23 @@
         async function champStartGame() {
             if (!champState.isHost) return;
             const playerIds = Object.keys(champState.players);
-            if (playerIds.length < 2) return alert('至少需要2位玩家！');
+            const aiCount = champState.isSimpleRoom ? Math.max(0, Math.min(3, champState.aiCount || 0)) : 0;
+            if (playerIds.length + aiCount < 2) return alert('至少需要2位玩家（含電腦）！');
+            if (playerIds.length + aiCount > 4) return alert('連線對戰最多4人（含電腦）！');
             // 連線對戰：所有玩家直接編入同一場比賽，無需分組／戰情中心
             const matchId = 'match1';
+            const matchPlayers = playerIds.reduce((acc, pid) => {
+                acc[pid] = { name: champState.players[pid]?.name || pid, status: 'waiting' };
+                return acc;
+            }, {});
+            // 房主選擇加入的電腦玩家，補滿剩餘名額
+            for (let i = 0; i < aiCount; i++) {
+                matchPlayers[`ai_${i}`] = { name: `電腦 ${i + 1}`, status: 'waiting', isAI: true };
+            }
             const bracketObj = {
                 [matchId]: {
                     matchId,
-                    players: playerIds.reduce((acc, pid) => {
-                        acc[pid] = { name: champState.players[pid]?.name || pid, status: 'waiting' };
-                        return acc;
-                    }, {}),
+                    players: matchPlayers,
                     status: 'playing',
                     winner: null
                 }
@@ -5605,6 +5668,7 @@
                     matchPlayerIds.forEach((fbPid, i) => {
                         if (state.players[i]) {
                             state.players[i].name = match.players[fbPid].name;
+                            state.players[i].isAI = !!match.players[fbPid].isAI;
                         }
                     });
                     await champSyncGameState();
