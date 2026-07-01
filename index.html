@@ -1180,7 +1180,13 @@
         function makeDraggable(el, handle, onClickFn) {
             const dragEl = handle || el;
             let startX, startY, origRight, origBottom, moved;
-            dragEl.addEventListener('mousedown', startDrag);
+            let lastTouchEnd = 0; // 抑制 touchend 後瀏覽器產生的合成 mousedown/mouseup 事件
+
+            dragEl.addEventListener('mousedown', function(e) {
+                // touchend 後 600ms 內出現的 mousedown 屬合成事件，略過以避免雙重觸發
+                if (Date.now() - lastTouchEnd < 600) return;
+                startDrag(e);
+            });
             dragEl.addEventListener('touchstart', startDrag, { passive: true });
 
             function startDrag(e) {
@@ -1210,11 +1216,13 @@
                 el.style.left   = 'auto';
                 el.style.top    = 'auto';
             }
-            function onEnd() {
+            function onEnd(e) {
                 document.removeEventListener('mousemove', onMove);
                 document.removeEventListener('touchmove', onMove);
                 document.removeEventListener('mouseup',  onEnd);
                 document.removeEventListener('touchend', onEnd);
+                // 記錄最後一次 touchend 的時間戳，供 mousedown 判斷是否為合成事件
+                if (e && e.type === 'touchend') lastTouchEnd = Date.now();
                 if (!moved && onClickFn) onClickFn();
             }
         }
@@ -6549,4 +6557,4 @@
         });
     </script>
 </body>
-  </html>
+            </html>
